@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 from math import radians, sin, cos
 from data_manager import DataManager
 from initialization import InitializationFrame
-from main import MainFrame
+from main import create_main_frame
 
 # 设置背景颜色
 BACKGROUND_COLOR = "#E6F2FF"
@@ -109,7 +109,6 @@ needs_initialization = not settings.get('Initialization', False) if settings els
 # 全局变量
 init_frame = None  # 添加全局变量定义
 
-# 显示主界面
 def show_main():
     global init_frame  # 声明使用全局变量
     
@@ -119,7 +118,8 @@ def show_main():
         init_frame = None  # 重置为None
     
     # 创建主界面框架
-    main_frame = MainFrame(win, dm, open_settings)
+    main_frame = create_main_frame(win, dm, open_settings)
+    main_frame.pack(fill="both", expand=True)
 
 # 初始化完成回调
 def on_initialization_complete():
