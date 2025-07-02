@@ -66,7 +66,6 @@ def check_dir(path):
             return False
     return True
 
-
 def check_settings_file():
     settings_path = os.path.join(data, 'settings.json')
     if not os.path.isfile(settings_path):
