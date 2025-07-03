@@ -106,7 +106,7 @@ def create_initialization_frame(parent, dm, on_complete_callback):
     language_container.place(relx=0, rely=0, relwidth=1, relheight=1)
     
     # 返回框架和状态标签
-    return frame, status_label
+    return frame
 
 def create_language_selection(language_container, path_container, progress_container, top_level, dm, on_complete_callback, selected_language, selected_path):
     """创建语言选择界面"""
@@ -406,6 +406,10 @@ def select_language(language, language_container, path_container, progress_conta
     """选择语言并切换到路径选择界面"""
     selected_language = language
     language_container.place_forget()
+    
+    # 清除路径容器中的所有控件
+    for widget in path_container.winfo_children():
+        widget.destroy()
     
     # 创建路径选择界面
     create_path_selection(path_container, selected_language, language_container, progress_container, top_level, dm, on_complete_callback, selected_path, status_label)
