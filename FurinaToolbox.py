@@ -11,9 +11,6 @@ from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
 
-# 设置背景颜色
-BACKGROUND_COLOR = "#E6F2FF"
-
 # 检查是否在调试模式
 is_debug = not (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'))
 
@@ -95,7 +92,7 @@ ctk.set_default_color_theme("blue")
 # 创建主窗口
 win = ctk.CTk()
 win.title("Furina Toolbox")
-win.configure(fg_color=BACKGROUND_COLOR)
+win.configure(fg_color="#E6F2FF")
 
 # 计算居中位置
 x_pos = int((screen_width - WINDOW_WIDTH * DPI_SCALING) / 2)
