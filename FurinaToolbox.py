@@ -8,7 +8,7 @@ import ctypes
 from PIL import Image, ImageDraw
 from math import radians, sin, cos
 from data_manager import DataManager
-from initialization import InitializationFrame
+from initialization import create_initialization_frame
 from main import create_main_frame
 
 # 设置背景颜色
@@ -163,7 +163,7 @@ if not os.path.exists(settings_image):
 # 显示界面
 if needs_initialization:
     outlog("即将进行初始化操作。About to initialize.")
-    init_frame = InitializationFrame(win, dm, on_initialization_complete)
+    init_frame = create_initialization_frame(win, dm, on_initialization_complete)
 else:
     outlog("加载主页。Load the main page.")
     show_main()
