@@ -15,7 +15,39 @@ dm.load(data)
 
 language = dm.get_config("Language", "English")
 
-Settings_Text = {"Chinese": "设置", "English": "Settings"}
+# 功能按钮配置（包括设置按钮）
+function_buttons = [
+    {
+        "text": {"Chinese": "角色管理", "English": "Character Management"},
+        "icon": "character.png",
+        "command": lambda: print("角色管理功能")
+    },
+    {
+        "text": {"Chinese": "武器管理", "English": "Weapon Management"},
+        "icon": "weapon.png",
+        "command": lambda: print("武器管理功能")
+    },
+    {
+        "text": {"Chinese": "材料计算", "English": "Material Calculator"},
+        "icon": "material.png",
+        "command": lambda: print("材料计算功能")
+    },
+    {
+        "text": {"Chinese": "任务追踪", "English": "Quest Tracker"},
+        "icon": "quest.png",
+        "command": lambda: print("任务追踪功能")
+    },
+    {
+        "text": {"Chinese": "地图工具", "English": "Map Tools"},
+        "icon": "map.png",
+        "command": lambda: print("地图工具功能")
+    },
+    {
+        "text": {"Chinese": "设置", "English": "Settings"},
+        "icon": "settings.png",
+        "command": None  # 将由参数传入
+    }
+]
 
 def create_main_frame(parent, dm, open_settings_callback):
     """
@@ -45,60 +77,92 @@ def create_main_frame(parent, dm, open_settings_callback):
     # 放置白条 - 左侧，高度占100%，宽度占15%
     sidebar.place(relx=0.0, rely=0.0, relwidth=0.15, relheight=1.0)
     
-    # 创建设置按钮 - 使用淡蓝色背景
-    # 图片路径
-    settings_image = image_data + "settings.png"
-    
-    # 加载设置图片
-    settings_img = ctk.CTkImage(
-        light_image=Image.open(settings_image),
-        dark_image=Image.open(settings_image),
-        size=(24, 24)
-    )
-    
-    # 按钮高度
+    # 按钮高度和间距
     button_height = 40
+    corner_radius = button_height // 2  # 椭圆形按钮
     
-    # 计算圆角半径 - 高度的一半，确保始终为椭圆形
-    corner_radius = button_height // 2
+    # 创建功能按钮列表
+    buttons = []
+    
+    # 计算按钮间距
+    total_buttons = len(function_buttons)
+    top_margin = 0.05  # 顶部边距
+    bottom_margin = 0.05  # 底部边距
+    available_space = 1.0 - top_margin - bottom_margin
+    button_spacing = available_space / total_buttons
+    
+    # 添加功能按钮（包括设置按钮）
+    for i, button_info in enumerate(function_buttons):
+        # 获取当前语言的按钮文本
+        button_text = button_info["text"].get(language, button_info["text"]["English"])
         
-    settings_btn = ctk.CTkButton(
-        sidebar,  # 放在功能区白条内
-        text=Settings_Text[language],
-        image=settings_img,
-        compound="left",
-        height=button_height,
-        corner_radius=corner_radius,  # 高度的一半，确保椭圆形
-        fg_color="#E6F2FF",  # 淡蓝色背景
-        hover_color="#C4D9F0",  # 悬停时稍深的蓝色
-        font=("Segoe UI", 12),
-        text_color="#1a56db",  # 深蓝色文本
-        command=open_settings_callback   
-    )
+        # 加载图标（如果有）
+        button_icon = None
+        if button_info["icon"]:
+            icon_path = os.path.join(image_data, button_info["icon"])
+            if os.path.exists(icon_path):
+                try:
+                    button_icon = ctk.CTkImage(
+                        light_image=Image.open(icon_path),
+                        dark_image=Image.open(icon_path),
+                        size=(24, 24)
+                    )
+                except:
+                    button_icon = None
         
-    # 将按钮放置在功能区白条的左下角
-    settings_btn.place(relx=0.5, rely=1.0, anchor="s", y=-10, relwidth=0.9)
+        # 如果是设置按钮，使用传入的回调函数
+        if button_text in ["设置", "Settings"]:
+            command = open_settings_callback
+        else:
+            command = button_info["command"]
+        
+        # 创建按钮
+        btn = ctk.CTkButton(
+            sidebar,
+            text=button_text,
+            image=button_icon,
+            compound="left",
+            height=button_height,
+            corner_radius=corner_radius,
+            fg_color="#E6F2FF",
+            hover_color="#C4D9F0",
+            text_color="#1a56db",
+            font=("Segoe UI", 12),
+            command=command
+        )
+        
+        # 计算按钮位置
+        rely_position = top_margin + (i * button_spacing) + (button_spacing / 2)
+        
+        # 放置按钮
+        btn.place(relx=0.5, rely=rely_position, anchor="center", relwidth=0.9)
+        buttons.append(btn)
     
     # 定义调整按钮形状的函数
-    def adjust_button_shape(event):
+    def adjust_button_shape(event=None):
         """动态调整按钮形状以保持椭圆形"""
-        # 获取按钮当前宽度
-        button_width = settings_btn.winfo_width()
+        # 获取边栏宽度
+        sidebar_width = sidebar.winfo_width()
         
-        # 计算理想宽度（高度的3倍）
-        ideal_width = button_height * 3
+        # 计算理想宽度（边栏宽度的90%）
+        ideal_width = sidebar_width * 0.9
         
         # 计算圆角半径（高度的一半）
         corner_radius = button_height // 2
         
-        # 如果按钮宽度小于理想宽度，调整宽度
-        if button_width < ideal_width:
-            settings_btn.configure(width=ideal_width)
-        # 否则，使用当前宽度，但保持圆角半径
-        else:
-            settings_btn.configure(corner_radius=corner_radius)
+        # 更新所有按钮的宽度和圆角
+        for btn in buttons:
+            # 如果按钮宽度小于理想宽度，调整宽度
+            if btn.winfo_width() < ideal_width:
+                btn.configure(width=ideal_width)
+            # 否则，使用当前宽度，但保持圆角半径
+            else:
+                btn.configure(corner_radius=corner_radius)
+    
+    # 初始调整一次
+    adjust_button_shape()
     
     # 绑定窗口大小变化事件
-    parent.bind("<Configure>", adjust_button_shape)
+    parent.bind("<Configure>", lambda e: adjust_button_shape())
     
     return frame
