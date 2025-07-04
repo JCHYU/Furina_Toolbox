@@ -187,30 +187,18 @@ def create_main_frame(parent, dm, on_initialization_complete):
         )
         btn.pack(side="top", fill="x", pady=(0, 5))
     
-    # 添加底部区域
+    # 添加底部版本信息
     bottom_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
     bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
     
-    # 添加设置按钮
-    settings_btn = ctk.CTkButton(
+    # 添加版本信息
+    version_info = ctk.CTkLabel(
         bottom_frame,
-        text=buttons_text_settings.get(language, "Settings"),
-        image=ctk.CTkImage(
-            light_image=Image.open(settings_icon_path),
-            dark_image=Image.open(settings_icon_path),
-            size=(24, 24)
-        ) if os.path.exists(settings_icon_path) else None,
-        compound="left",
-        height=button_height,
-        corner_radius=8,
-        fg_color=button_fg,
-        hover_color=button_hover,
-        text_color=text_color,
-        font=button_font,
-        anchor="w",
-        command=Settings_Open
+        text="Furina Toolbox v1.0",
+        font=("Segoe UI", 10),
+        text_color="#4B5563",  # 灰色
     )
-    settings_btn.pack(side="top", fill="x")
+    version_info.pack(side="top", fill="x", pady=5)
     
     # 创建右侧内容区域
     content_frame = ctk.CTkFrame(
