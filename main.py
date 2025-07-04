@@ -43,7 +43,8 @@ function_buttons = [
     },
     {
         "text": buttons_text_main, 
-        "icon": "character.png"
+        "icon": "character.png",
+        "command": None
     },
     {
         "text": buttons_text_start,
