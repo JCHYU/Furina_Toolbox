@@ -1,22 +1,20 @@
-# 这是 FurinaToolbox.py (主程序) 的化简版
+# FurinaToolbox.py (主程序)
 import customtkinter as ctk
 import os
 from tkinter.messagebox import showerror
 from screeninfo import get_monitors
 import sys
 import ctypes
-from PIL import Image, ImageDraw
-from math import radians, sin, cos
 from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
 
 # 检查是否在调试模式
-is_debug = not (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'))
+is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
 
 # 日志函数
 def outlog(log):
-    if is_debug:    
+    if is_debug:
         print("[控制台Console]" + log)
 
 if is_debug:
@@ -115,47 +113,12 @@ def show_main():
         init_frame = None  # 重置为None
     
     # 创建主界面框架
-    main_frame = create_main_frame(win, dm, open_settings)
+    main_frame = create_main_frame(win, dm, on_initialization_complete)
     main_frame.pack(fill="both", expand=True)
 
 # 初始化完成回调
 def on_initialization_complete():
     show_main()
-
-# 设置按钮功能
-def open_settings():
-    print("Settings button clicked")
-
-# 创建设置图标
-settings_image = os.path.join(image_data, "settings.png")
-if not os.path.exists(settings_image):
-    try:
-        img_size = (32, 32)
-        img = Image.new('RGBA', img_size, (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        center = (img_size[0] // 2, img_size[1] // 2)
-        radius = 12
-        
-        # 绘制齿轮
-        draw.ellipse([(center[0]-radius, center[1]-radius), 
-                     (center[0]+radius, center[1]+radius)], 
-                     outline="#1a56db", width=2)
-        
-        # 绘制齿轮齿
-        for i in range(8):
-            angle = i * 45
-            rad_angle = radians(angle)
-            cos_val, sin_val = cos(rad_angle), sin(rad_angle)
-            
-            x1 = center[0] + int(radius * 0.7 * cos_val)
-            y1 = center[1] + int(radius * 0.7 * sin_val)
-            x2 = center[0] + int(radius * 1.3 * cos_val)
-            y2 = center[1] + int(radius * 1.3 * sin_val)
-            draw.line([(x1, y1), (x2, y2)], fill="#1a56db", width=2)
-        
-        img.save(settings_image)
-    except Exception as e:
-        print(f"无法创建设置图标: {e}")
 
 # 显示界面
 if needs_initialization:

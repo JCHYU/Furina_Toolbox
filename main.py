@@ -1,13 +1,20 @@
-# 这是 main.py (主页) 的代码
 import customtkinter as ctk
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
+from math import radians, sin, cos
 from data_manager import DataManager
+from initialization import create_initialization_frame
 
 # 路径配置
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
 exec_path = os.path.dirname(os.path.abspath(__file__))
+
+buttons_text_login = {"Chinese": "登录", "English": "Login"}
+buttons_text_main = {"Chinese": "主页", "English": "Main"}
+buttons_text_start = {"Chinese": "启动游戏", "English": "Start Game"}
+buttons_text_translate = {"Chinese": "翻译", "English": "Translate"}
+buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
 
 # 初始化数据管理器
 dm = DataManager()
@@ -15,47 +22,86 @@ dm.load(data)
 
 language = dm.get_config("Language", "English")
 
-# 功能按钮配置（包括设置按钮）
+# 打开设置的回调函数
+def Settings_Open():
+    pass
+
+def Login_Open():
+    pass
+
+def Start_Open():
+    pass
+
+def Fanyi_Open():
+    pass
+
 function_buttons = [
     {
-        "text": {"Chinese": "角色管理", "English": "Character Management"},
+        "text": buttons_text_login, 
         "icon": "character.png",
-        "command": lambda: print("角色管理功能")
+        "command": Login_Open
     },
     {
-        "text": {"Chinese": "武器管理", "English": "Weapon Management"},
+        "text": buttons_text_main, 
+        "icon": "character.png"
+    },
+    {
+        "text": buttons_text_start,
         "icon": "weapon.png",
-        "command": lambda: print("武器管理功能")
+        "command": Start_Open
     },
     {
-        "text": {"Chinese": "材料计算", "English": "Material Calculator"},
+        "text": buttons_text_translate,
         "icon": "material.png",
-        "command": lambda: print("材料计算功能")
+        "command": Fanyi_Open
     },
     {
-        "text": {"Chinese": "任务追踪", "English": "Quest Tracker"},
-        "icon": "quest.png",
-        "command": lambda: print("任务追踪功能")
-    },
-    {
-        "text": {"Chinese": "地图工具", "English": "Map Tools"},
-        "icon": "map.png",
-        "command": lambda: print("地图工具功能")
-    },
-    {
-        "text": {"Chinese": "设置", "English": "Settings"},
+        "text": buttons_text_settings,
         "icon": "settings.png",
-        "command": None  # 将由参数传入
+        "command": Settings_Open
     }
 ]
 
-def create_main_frame(parent, dm, open_settings_callback):
+# 创建设置图标函数
+def create_settings_icon(icon_path):
+    """动态生成设置图标"""
+    try:
+        img_size = (32, 32)
+        img = Image.new('RGBA', img_size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        center = (img_size[0] // 2, img_size[1] // 2)
+        radius = 12
+        
+        # 绘制齿轮
+        draw.ellipse([(center[0]-radius, center[1]-radius), 
+                     (center[0]+radius, center[1]+radius)], 
+                     outline="#1a56db", width=2)
+        
+        # 绘制齿轮齿
+        for i in range(8):
+            angle = i * 45
+            rad_angle = radians(angle)
+            cos_val, sin_val = cos(rad_angle), sin(rad_angle)
+            
+            x1 = center[0] + int(radius * 0.7 * cos_val)
+            y1 = center[1] + int(radius * 0.7 * sin_val)
+            x2 = center[0] + int(radius * 1.3 * cos_val)
+            y2 = center[1] + int(radius * 1.3 * sin_val)
+            draw.line([(x1, y1), (x2, y2)], fill="#1a56db", width=2)
+        
+        img.save(icon_path)
+        return True
+    except Exception as e:
+        print(f"无法创建设置图标: {e}")
+        return False
+
+def create_main_frame(parent, dm, on_initialization_complete):
     """
     创建主界面框架
     
     :param parent: 父容器
     :param dm: DataManager实例
-    :param open_settings_callback: 打开设置的回调函数
+    :param on_initialization_complete: 初始化完成回调函数
     """
     # 创建主框架
     frame = ctk.CTkFrame(parent)
@@ -91,10 +137,21 @@ def create_main_frame(parent, dm, open_settings_callback):
     available_space = 1.0 - top_margin - bottom_margin
     button_spacing = available_space / total_buttons
     
-    # 添加功能按钮（包括设置按钮）
+    # 确保设置图标存在
+    settings_icon_path = os.path.join(image_data, "settings.png")
+    if not os.path.exists(settings_icon_path):
+        create_settings_icon(settings_icon_path)
+    
+    # 添加功能按钮
     for i, button_info in enumerate(function_buttons):
         # 获取当前语言的按钮文本
-        button_text = button_info["text"].get(language, button_info["text"]["English"])
+        # 确保button_info["text"]是一个字典
+        if isinstance(button_info["text"], dict):
+            # 使用当前语言获取文本，如果不存在则使用英语
+            button_text = button_info["text"].get(language, button_info["text"]["English"])
+        else:
+            # 如果不是字典，直接使用文本值
+            button_text = button_info["text"]
         
         # 加载图标（如果有）
         button_icon = None
@@ -110,13 +167,7 @@ def create_main_frame(parent, dm, open_settings_callback):
                 except:
                     button_icon = None
         
-        # 如果是设置按钮，使用传入的回调函数
-        if button_text in ["设置", "Settings"]:
-            command = open_settings_callback
-        else:
-            command = button_info["command"]
-        
-        # 创建按钮
+        # 创建按钮 - 直接使用按钮配置中的command
         btn = ctk.CTkButton(
             sidebar,
             text=button_text,
@@ -128,7 +179,7 @@ def create_main_frame(parent, dm, open_settings_callback):
             hover_color="#C4D9F0",
             text_color="#1a56db",
             font=("Segoe UI", 12),
-            command=command
+            command=button_info["command"]  # 直接使用配置中的命令
         )
         
         # 计算按钮位置
