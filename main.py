@@ -98,7 +98,7 @@ def create_settings_icon(icon_path):
 
 def create_main_frame(parent, dm, on_initialization_complete):
     """
-    创建主界面框架
+    创建主界面框架 - 简洁现代风格
     
     :param parent: 父容器
     :param dm: DataManager实例
@@ -106,56 +106,57 @@ def create_main_frame(parent, dm, on_initialization_complete):
     """
     # 创建主框架
     frame = ctk.CTkFrame(parent)
-    frame.configure(fg_color="#E6F2FF")
+    frame.configure(fg_color="#FFFFFF")  # 白色背景
     frame.pack(fill="both", expand=True)
     
     # 创建主容器
     main_container = ctk.CTkFrame(frame, fg_color="transparent")
     main_container.place(relx=0, rely=0, relwidth=1, relheight=1)
     
-    # 创建左侧功能区白条
+    # 创建左侧功能区 - 简洁现代风格
     sidebar = ctk.CTkFrame(
         main_container,
-        fg_color="#FFFFFF",  # 白色背景
+        fg_color="#F8FAFC",  # 浅灰蓝色背景
         corner_radius=0,     # 直角
-        width=100,           # 初始宽度
-        height=600           # 初始高度
+        width=200,           # 宽度
     )
-    # 放置白条 - 左侧，高度占100%，宽度占15%
+    # 放置侧边栏 - 左侧，高度占100%，宽度占15%
     sidebar.place(relx=0.0, rely=0.0, relwidth=0.15, relheight=1.0)
     
-    # 按钮高度和间距
-    button_height = 40
-    corner_radius = button_height // 2  # 椭圆形按钮
+    # 添加应用标题
+    app_title = ctk.CTkLabel(
+        sidebar,
+        text="Furina Toolbox",
+        font=("Segoe UI", 16, "bold"),
+        text_color="#1E3A8A",  # 深蓝色
+    )
+    app_title.pack(side="top", fill="x", padx=20, pady=(20, 15))
     
-    # 创建功能按钮列表
-    buttons = []
+    # 添加功能按钮容器
+    button_container = ctk.CTkFrame(sidebar, fg_color="transparent")
+    button_container.pack(side="top", fill="both", expand=True, padx=10, pady=5)
     
-    # 计算按钮间距 - 使用固定间距实现紧凑布局
-    button_spacing = 5  # 按钮之间的垂直间距（像素）
-    top_margin = 10     # 顶部边距（像素）
+    # 按钮高度和样式
+    button_height = 42
+    button_font = ("Segoe UI", 12)
+    button_fg = "transparent"
+    button_hover = "#EFF6FF"  # 非常淡的蓝色
+    text_color = "#1E40AF"    # 蓝色
     
     # 确保设置图标存在
     settings_icon_path = os.path.join(image_data, "settings.png")
     if not os.path.exists(settings_icon_path):
         create_settings_icon(settings_icon_path)
     
-    # 创建按钮容器 - 用于实现紧凑布局
-    button_container = ctk.CTkFrame(sidebar, fg_color="transparent")
-    button_container.pack(side="top", fill="both", expand=True, padx=5, pady=top_margin)
-    
     # 添加功能按钮
-    for i, button_info in enumerate(function_buttons):
+    for button_info in function_buttons:
         # 获取当前语言的按钮文本
-        # 确保button_info["text"]是一个字典
         if isinstance(button_info["text"], dict):
-            # 使用当前语言获取文本，如果不存在则使用英语
             button_text = button_info["text"].get(language, button_info["text"]["English"])
         else:
-            # 如果不是字典，直接使用文本值
             button_text = button_info["text"]
         
-        # 加载图标（如果有）
+        # 加载图标
         button_icon = None
         if button_info["icon"]:
             icon_path = os.path.join(image_data, button_info["icon"])
@@ -164,50 +165,89 @@ def create_main_frame(parent, dm, on_initialization_complete):
                     button_icon = ctk.CTkImage(
                         light_image=Image.open(icon_path),
                         dark_image=Image.open(icon_path),
-                        size=(24, 24)
-                    )
+                        size=(24, 24))
                 except:
                     button_icon = None
         
-        # 创建按钮 - 直接使用按钮配置中的command
+        # 创建按钮
         btn = ctk.CTkButton(
             button_container,
             text=button_text,
             image=button_icon,
             compound="left",
             height=button_height,
-            corner_radius=corner_radius,
-            fg_color="#E6F2FF",
-            hover_color="#C4D9F0",
-            text_color="#1a56db",
-            font=("Segoe UI", 12),
-            command=button_info["command"]  # 直接使用配置中的命令
+            corner_radius=8,  # 轻微圆角
+            fg_color=button_fg,
+            hover_color=button_hover,
+            text_color=text_color,
+            font=button_font,
+            anchor="w",  # 左对齐
+            command=button_info["command"]
         )
-        
-        # 使用pack放置按钮，实现紧凑排列
-        btn.pack(side="top", fill="x", padx=5, pady=(0, button_spacing))
-        buttons.append(btn)
+        btn.pack(side="top", fill="x", pady=(0, 5))
     
-    # 定义调整按钮形状的函数
-    def adjust_button_shape(event=None):
-        """动态调整按钮形状以保持椭圆形"""
-        # 获取容器宽度
-        container_width = button_container.winfo_width()
-        
-        # 计算理想宽度（容器宽度的100%）
-        ideal_width = container_width - 10  # 减去左右边距
-        
-        # 计算圆角半径（高度的一半）
-        corner_radius = button_height // 2
-        
-        # 更新所有按钮的宽度和圆角
-        for btn in buttons:
-            btn.configure(width=ideal_width, corner_radius=corner_radius)
+    # 添加底部区域
+    bottom_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
+    bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
     
-    # 初始调整一次
-    adjust_button_shape()
+    # 添加设置按钮
+    settings_btn = ctk.CTkButton(
+        bottom_frame,
+        text=buttons_text_settings.get(language, "Settings"),
+        image=ctk.CTkImage(
+            light_image=Image.open(settings_icon_path),
+            dark_image=Image.open(settings_icon_path),
+            size=(24, 24)
+        ) if os.path.exists(settings_icon_path) else None,
+        compound="left",
+        height=button_height,
+        corner_radius=8,
+        fg_color=button_fg,
+        hover_color=button_hover,
+        text_color=text_color,
+        font=button_font,
+        anchor="w",
+        command=Settings_Open
+    )
+    settings_btn.pack(side="top", fill="x")
     
-    # 绑定窗口大小变化事件
-    button_container.bind("<Configure>", lambda e: adjust_button_shape())
+    # 创建右侧内容区域
+    content_frame = ctk.CTkFrame(
+        main_container,
+        fg_color="#FFFFFF",
+        corner_radius=0,
+        border_width=0
+    )
+    content_frame.place(relx=0.15, rely=0, relwidth=0.85, relheight=1.0)
+    
+    # 添加欢迎内容
+    welcome_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
+    welcome_frame.place(relx=0.5, rely=0.4, anchor="center")
+    
+    # 添加应用图标（占位）
+    app_icon = ctk.CTkLabel(
+        welcome_frame,
+        text="🎮",  # 使用emoji作为占位符
+        font=("Segoe UI", 64),
+        text_color="#3B82F6",  # 蓝色
+    )
+    app_icon.pack(side="top", pady=(0, 20))
+    
+    welcome_label = ctk.CTkLabel(
+        welcome_frame,
+        text="欢迎使用 Furina Toolbox" if language == "Chinese" else "Welcome to Furina Toolbox",
+        font=("Segoe UI", 24, "bold"),
+        text_color="#1E3A8A",  # 深蓝色
+    )
+    welcome_label.pack(side="top", pady=(0, 10))
+    
+    description_text = "请从左侧菜单中选择功能" if language == "Chinese" else "Select a function from the sidebar"
+    description_label = ctk.CTkLabel(
+        welcome_frame,
+        text=description_text,
+        font=("Segoe UI", 14),
+        text_color="#4B5563",  # 灰色
+    )
+    description_label.pack(side="top")
     
     return frame
