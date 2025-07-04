@@ -131,17 +131,18 @@ def create_main_frame(parent, dm, on_initialization_complete):
     # 创建功能按钮列表
     buttons = []
     
-    # 计算按钮间距
-    total_buttons = len(function_buttons)
-    top_margin = 0.05  # 顶部边距
-    bottom_margin = 0.05  # 底部边距
-    available_space = 1.0 - top_margin - bottom_margin
-    button_spacing = available_space / total_buttons
+    # 计算按钮间距 - 使用固定间距实现紧凑布局
+    button_spacing = 5  # 按钮之间的垂直间距（像素）
+    top_margin = 10     # 顶部边距（像素）
     
     # 确保设置图标存在
     settings_icon_path = os.path.join(image_data, "settings.png")
     if not os.path.exists(settings_icon_path):
         create_settings_icon(settings_icon_path)
+    
+    # 创建按钮容器 - 用于实现紧凑布局
+    button_container = ctk.CTkFrame(sidebar, fg_color="transparent")
+    button_container.pack(side="top", fill="both", expand=True, padx=5, pady=top_margin)
     
     # 添加功能按钮
     for i, button_info in enumerate(function_buttons):
@@ -170,7 +171,7 @@ def create_main_frame(parent, dm, on_initialization_complete):
         
         # 创建按钮 - 直接使用按钮配置中的command
         btn = ctk.CTkButton(
-            sidebar,
+            button_container,
             text=button_text,
             image=button_icon,
             compound="left",
@@ -183,38 +184,30 @@ def create_main_frame(parent, dm, on_initialization_complete):
             command=button_info["command"]  # 直接使用配置中的命令
         )
         
-        # 计算按钮位置
-        rely_position = top_margin + (i * button_spacing) + (button_spacing / 2)
-        
-        # 放置按钮
-        btn.place(relx=0.5, rely=rely_position, anchor="center", relwidth=0.9)
+        # 使用pack放置按钮，实现紧凑排列
+        btn.pack(side="top", fill="x", padx=5, pady=(0, button_spacing))
         buttons.append(btn)
     
     # 定义调整按钮形状的函数
     def adjust_button_shape(event=None):
         """动态调整按钮形状以保持椭圆形"""
-        # 获取边栏宽度
-        sidebar_width = sidebar.winfo_width()
+        # 获取容器宽度
+        container_width = button_container.winfo_width()
         
-        # 计算理想宽度（边栏宽度的90%）
-        ideal_width = sidebar_width * 0.9
+        # 计算理想宽度（容器宽度的100%）
+        ideal_width = container_width - 10  # 减去左右边距
         
         # 计算圆角半径（高度的一半）
         corner_radius = button_height // 2
         
         # 更新所有按钮的宽度和圆角
         for btn in buttons:
-            # 如果按钮宽度小于理想宽度，调整宽度
-            if btn.winfo_width() < ideal_width:
-                btn.configure(width=ideal_width)
-            # 否则，使用当前宽度，但保持圆角半径
-            else:
-                btn.configure(corner_radius=corner_radius)
+            btn.configure(width=ideal_width, corner_radius=corner_radius)
     
     # 初始调整一次
     adjust_button_shape()
     
     # 绑定窗口大小变化事件
-    parent.bind("<Configure>", lambda e: adjust_button_shape())
+    button_container.bind("<Configure>", lambda e: adjust_button_shape())
     
     return frame
