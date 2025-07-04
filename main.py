@@ -165,7 +165,8 @@ def create_main_frame(parent, dm, on_initialization_complete):
                     button_icon = ctk.CTkImage(
                         light_image=Image.open(icon_path),
                         dark_image=Image.open(icon_path),
-                        size=(24, 24))
+                        size=(24, 24)
+                    )
                 except:
                     button_icon = None
         
