@@ -103,18 +103,9 @@ function_buttons = [
     }
 ]
 
-def create_main_frame(parent, dm, on_initialization_complete):
-    """
-    创建主界面框架 - 简洁现代风格
-    
-    :param parent: 父容器
-    :param dm: DataManager实例
-    :param on_initialization_complete: 初始化完成回调函数
-    """
-    
-    # 创建主框架
+def create_main_frame(parent, dm, on_initialization_complete): # 主框架
     frame = ctk.CTkFrame(parent)
-    frame.configure(fg_color="#FFFFFF")  # 白色背景
+    frame.configure(fg_color="#FFFFFF")
     frame.pack(fill="both", expand=True)
     
     # 创建主容器
