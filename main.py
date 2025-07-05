@@ -236,8 +236,6 @@ def create_main_frame(parent, dm, on_initialization_complete): # 主框架
         # 如果是主页按钮，设置选中样式
         if is_main_button:
             btn.configure(fg_color=button_hover)  # 使用悬停颜色作为背景
-        
-        btn.pack(fill="x", expand=True)
         buttons.append(btn)  # 添加到按钮列表
         btn.pack(side="top", fill="x", pady=(0, 5))
     
