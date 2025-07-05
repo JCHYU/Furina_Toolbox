@@ -26,7 +26,7 @@ def create_sidebar(parent, dm, on_button_click):
         sidebar,
         text=text_title[language],
         font=("Segoe UI", 16, "bold"),
-        text_color="#1E3A8A",  # 深蓝色
+        text_color="#1E3A8A",
     )
     app_title.pack(side="top", fill="x", padx=20, pady=(20, 15))
     
