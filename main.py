@@ -164,8 +164,6 @@ def create_main_frame(parent, dm, on_initialization_complete):
     :param dm: DataManager实例
     :param on_initialization_complete: 初始化完成回调函数
     """
-    # 创建不同状态的设置图标
-    create_settings_icons()
     
     # 创建主框架
     frame = ctk.CTkFrame(parent)
@@ -216,9 +214,9 @@ def create_main_frame(parent, dm, on_initialization_complete):
         if isinstance(button_info["text"], dict):
             button_text = button_info["text"].get(language, button_info["text"]["English"])
         else:
-            button_text = button_info["text"]
+            button_text = button_text = button_info["text"]
         
-        # 加载图标
+        # 加载图标（仅当图片存在时）
         button_icon = None
         if button_info["icon"]:
             icon_path = os.path.join(image_data, button_info["icon"])
@@ -231,19 +229,10 @@ def create_main_frame(parent, dm, on_initialization_complete):
                     )
                 except Exception as e:
                     print(f"加载图标失败: {e}")
-                    # 如果是设置图标且加载失败，尝试重新创建
-                    if button_info["text"] == buttons_text_settings:
-                        create_settings_icon(icon_path, color="#3B82F6")
-                        try:
-                            button_icon = ctk.CTkImage(
-                                light_image=Image.open(icon_path),
-                                dark_image=Image.open(icon_path),
-                                size=(24, 24)
-                            )
-                        except:
-                            button_icon = None
-                    else:
-                        button_icon = None
+                    button_icon = None
+            else:
+                # 图片不存在，不创建也不报错
+                button_icon = None
         
         # 创建按钮 - 使用fill="x"确保宽度填满容器
         if button_info["text"] == buttons_text_settings:
