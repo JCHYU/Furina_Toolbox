@@ -9,8 +9,11 @@ from initialization import create_initialization_frame
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
 exec_path = os.path.dirname(os.path.abspath(__file__))
+dm = DataManager()
+dm.load(data)
 
 # 多语言
+language = dm.get_config("Language", "English")
 text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 buttons_text_login = {"Chinese": "登录", "English": "Login"}
 buttons_text_main = {"Chinese": "主页", "English": "Main"}
@@ -20,12 +23,6 @@ buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
 
 # 布局
 weight = 0.2 # 侧边栏与总窗口宽度之比
-
-# 初始化数据管理器
-dm = DataManager()
-dm.load(data)
-
-language = dm.get_config("Language", "English")
 
 # 打开设置的回调函数
 def Settings_Open():
