@@ -8,7 +8,7 @@ import ctypes
 from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
-from menu import create_sidebar  # 修改为导入 create_sidebar 函数
+from menu import create_sidebar  # 导入 create_sidebar 函数
 
 # 检查是否在调试模式
 is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
@@ -90,7 +90,12 @@ ctk.set_default_color_theme("blue")
 
 # 创建主窗口
 win = ctk.CTk()
-win.title("Furina Toolbox")
+
+# 设置窗口标题多语言支持
+text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
+language = dm.get_config("Language", "English")
+win.title(text_title.get(language, text_title["English"]))
+
 win.configure(fg_color="#E6F2FF")
 
 # 计算居中位置
