@@ -114,26 +114,28 @@ def create_main_frame(parent, dm, on_initialization_complete):
     main_container = ctk.CTkFrame(frame, fg_color="transparent")
     main_container.place(relx=0, rely=0, relwidth=1, relheight=1)
     
+    # 设置侧边栏宽度比例 (20%)
+    weight = 0.2
+    
     # 创建左侧功能区 - 简洁现代风格
     sidebar = ctk.CTkFrame(
         main_container,
         fg_color="#F8FAFC",  # 浅灰蓝色背景
         corner_radius=0,     # 直角
-        width=200,           # 宽度
     )
-    # 放置侧边栏 - 左侧，高度占100%，宽度占15%
-    sidebar.place(relx=0.0, rely=0.0, relwidth=0.15, relheight=1.0)
+    # 放置侧边栏 - 左侧，高度占100%，宽度为weight
+    sidebar.place(relx=0.0, rely=0.0, relwidth=weight, relheight=1.0)
     
     # 添加应用标题
     app_title = ctk.CTkLabel(
         sidebar,
-        text=text_title [ language ],
+        text=text_title[language],
         font=("Segoe UI", 16, "bold"),
         text_color="#1E3A8A",  # 深蓝色
     )
     app_title.pack(side="top", fill="x", padx=20, pady=(20, 15))
     
-    # 添加功能按钮容器
+    # 添加功能按钮容器 - 使用fill="both"确保宽度填满侧边栏
     button_container = ctk.CTkFrame(sidebar, fg_color="transparent")
     button_container.pack(side="top", fill="both", expand=True, padx=10, pady=5)
     
@@ -149,7 +151,7 @@ def create_main_frame(parent, dm, on_initialization_complete):
     if not os.path.exists(settings_icon_path):
         create_settings_icon(settings_icon_path)
     
-    # 添加功能按钮
+    # 添加功能按钮 - 宽度填满容器
     for button_info in function_buttons:
         # 获取当前语言的按钮文本
         if isinstance(button_info["text"], dict):
@@ -171,7 +173,7 @@ def create_main_frame(parent, dm, on_initialization_complete):
                 except:
                     button_icon = None
         
-        # 创建按钮
+        # 创建按钮 - 使用fill="x"确保宽度填满容器
         btn = ctk.CTkButton(
             button_container,
             text=button_text,
@@ -201,14 +203,14 @@ def create_main_frame(parent, dm, on_initialization_complete):
     )
     version_info.pack(side="top", fill="x", pady=5)
     
-    # 创建右侧内容区域
+    # 创建右侧内容区域 - 宽度为1-weight
     content_frame = ctk.CTkFrame(
         main_container,
         fg_color="#FFFFFF",
         corner_radius=0,
         border_width=0
     )
-    content_frame.place(relx=0.15, rely=0, relwidth=0.85, relheight=1.0)
+    content_frame.place(relx=weight, rely=0, relwidth=1-weight, relheight=1.0)
     
     # 添加欢迎内容
     welcome_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
