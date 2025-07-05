@@ -12,5 +12,4 @@ Python
 #### 联系我(们)
 微信: PCProgrammer
 QQ: 3444677312
-钉钉: 
 Mail: JCHYUDevelop@gmail.com(不推荐)
