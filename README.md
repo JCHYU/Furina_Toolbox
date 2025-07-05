@@ -9,7 +9,7 @@ Python
 #### 参与贡献
 电脑小白 
 
-#### 联系我(们)
+#### 加入/联系 我(们)
 微信: PCProgrammer
 QQ: 3444677312
 Mail: JCHYUDevelop@gmail.com(不推荐)
