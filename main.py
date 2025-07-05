@@ -29,24 +29,6 @@ buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
 # 布局
 weight = 0.2  # 侧边栏与总窗口宽度之比
 
-# 创建不同状态的设置图标
-def create_settings_icons():
-    """创建不同状态的设置图标"""
-    # 确保settings目录存在
-    settings_dir = os.path.join(image_data, "settings")
-    if not os.path.exists(settings_dir):
-        os.makedirs(settings_dir)
-    
-    # 创建正常状态图标
-    normal_path = os.path.join(image_data, icon_settings_normal)
-    if not os.path.exists(normal_path):
-        create_settings_icon(normal_path, color="#3B82F6")  # 蓝色
-    
-    # 创建点击状态图标
-    click_path = os.path.join(image_data, icon_settings_click)
-    if not os.path.exists(click_path):
-        create_settings_icon(click_path, color="#1D4ED8")  # 深蓝色
-
 def Settings_Open(btn):
     """设置按钮点击事件，更改图标为点击状态"""
     try:
@@ -120,41 +102,6 @@ function_buttons = [
         "command": None  # 这里设置为None，因为我们将在创建按钮时单独处理
     }
 ]
-
-# 创建设置图标函数（增强版）
-def create_settings_icon(icon_path, color="#3B82F6"):
-    """动态生成设置图标"""
-    try:
-        img_size = (32, 32)
-        img = Image.new('RGBA', img_size, (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        center = (img_size[0] // 2, img_size[1] // 2)
-        radius = 12
-        
-        # 绘制齿轮 - 使用指定颜色
-        draw.ellipse([(center[0]-radius, center[1]-radius), 
-                     (center[0]+radius, center[1]+radius)], 
-                     outline=color, width=2)
-        
-        # 绘制齿轮齿 - 使用指定颜色
-        for i in range(8):
-            angle = i * 45
-            rad_angle = radians(angle)
-            cos_val, sin_val = cos(rad_angle), sin(rad_angle)
-            
-            x1 = center[0] + int(radius * 0.7 * cos_val)
-            y1 = center[1] + int(radius * 0.7 * sin_val)
-            x2 = center[0] + int(radius * 1.3 * cos_val)
-            y2 = center[1] + int(radius * 1.3 * sin_val)
-            draw.line([(x1, y1), (x2, y2)], fill=color, width=2)
-        
-        # 确保目录存在
-        os.makedirs(os.path.dirname(icon_path), exist_ok=True)
-        img.save(icon_path)
-        return True
-    except Exception as e:
-        print(f"无法创建设置图标: {e}")
-        return False
 
 def create_main_frame(parent, dm, on_initialization_complete):
     """
