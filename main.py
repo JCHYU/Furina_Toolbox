@@ -140,6 +140,7 @@ def create_main_frame(parent, dm, on_initialization_complete): # 主框架
     button_fg = "transparent"
     button_hover = "#EFF6FF"  # 非常淡的蓝色
     text_color = "#1E40AF"    # 蓝色
+    selected_color = "#3B82F6"  # 选中状态的蓝色
     
     # 保存设置按钮的引用
     settings_button = None
@@ -152,7 +153,7 @@ def create_main_frame(parent, dm, on_initialization_complete): # 主框架
         if isinstance(button_info["text"], dict):
             button_text = button_info["text"].get(language, button_info["text"]["English"])
         else:
-            button_text = button_text = button_info["text"]
+            button_text = button_info["text"]
         
         # 加载图标（仅当图片存在时）
         button_icon = None
@@ -172,11 +173,34 @@ def create_main_frame(parent, dm, on_initialization_complete): # 主框架
                 # 图片不存在，不创建也不报错
                 button_icon = None
         
+        # 创建按钮容器 - 用于添加蓝色竖线效果
+        button_frame = ctk.CTkFrame(
+            button_container, 
+            fg_color="transparent",
+            corner_radius=8
+        )
+        button_frame.pack(fill="x", pady=(0, 5))
+        
+        # 创建蓝色竖线 - 初始隐藏
+        selection_indicator = ctk.CTkFrame(
+            button_frame,
+            width=4,
+            fg_color=selected_color,
+            corner_radius=2
+        )
+        selection_indicator.place(relx=0, rely=0.5, relheight=0.7, anchor="w")
+        selection_indicator.place_forget()  # 默认隐藏
+        
+        # 如果是主页按钮，显示蓝色竖线
+        is_main_button = button_info["text"] == buttons_text_main
+        if is_main_button:
+            selection_indicator.place(relx=0, rely=0.5, relheight=0.7, anchor="w")
+        
         # 创建按钮 - 使用fill="x"确保宽度填满容器
         if button_info["text"] == buttons_text_settings:
             # 设置按钮特殊处理
             btn = ctk.CTkButton(
-                button_container,
+                button_frame,
                 text=button_text,
                 image=button_icon,
                 compound="left",
@@ -195,7 +219,7 @@ def create_main_frame(parent, dm, on_initialization_complete): # 主框架
         else:
             # 其他按钮正常创建
             btn = ctk.CTkButton(
-                button_container,
+                button_frame,
                 text=button_text,
                 image=button_icon,
                 compound="left",
@@ -209,6 +233,11 @@ def create_main_frame(parent, dm, on_initialization_complete): # 主框架
                 command=button_info["command"]
             )
         
+        # 如果是主页按钮，设置选中样式
+        if is_main_button:
+            btn.configure(fg_color=button_hover)  # 使用悬停颜色作为背景
+        
+        btn.pack(fill="x", expand=True)
         buttons.append(btn)  # 添加到按钮列表
         btn.pack(side="top", fill="x", pady=(0, 5))
     
