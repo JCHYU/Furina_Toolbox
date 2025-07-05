@@ -9,7 +9,7 @@ from initialization import create_initialization_frame
 # 路径配置
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
-exec_path = os.path.dirname(os.path.abspath(__file__))
+exec_path = os.path.dirname(os.path.abspath(__file__))  
 dm = DataManager()
 dm.load(data)
 
@@ -61,7 +61,7 @@ function_buttons = [
     },
     {
         "text": buttons_text_settings,
-        "icon": "settings.png",
+        "icon": "\\settings\\settings_normal.png",
         "command": Settings_Open
     }
 ]
@@ -144,11 +144,6 @@ def create_main_frame(parent, dm, on_initialization_complete):
     button_fg = "transparent"
     button_hover = "#EFF6FF"  # 非常淡的蓝色
     text_color = "#1E40AF"    # 蓝色
-    
-    # 确保设置图标存在
-    settings_icon_path = os.path.join(image_data, "settings.png")
-    if not os.path.exists(settings_icon_path):
-        create_settings_icon(settings_icon_path)
     
     # 添加功能按钮 - 宽度填满容器
     for button_info in function_buttons:
