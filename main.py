@@ -14,7 +14,7 @@ dm = DataManager()
 dm.load(data)
 
 # 图标状态路径
-icon_settings_normal= "settings\\settings_normal.png"
+icon_settings_normal = "settings\\settings_normal.png"
 icon_settings_click = "settings\\settings_click.png"
 
 # 多语言
@@ -27,7 +27,7 @@ buttons_text_translate = {"Chinese": "翻译", "English": "Translate"}
 buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
 
 # 布局
-weight = 0.2 # 侧边栏与总窗口宽度之比
+weight = 0.2  # 侧边栏与总窗口宽度之比
 
 # 创建不同状态的设置图标
 def create_settings_icons():
@@ -64,6 +64,9 @@ def Settings_Open(btn):
             
             # 设置定时器，500ms后恢复为正常图标
             btn.after(500, lambda: restore_settings_icon(btn))
+            
+            # 这里添加实际打开设置窗口的代码
+            # open_settings_window()
     except Exception as e:
         print(f"设置按钮点击事件错误: {e}")
 
@@ -206,6 +209,8 @@ def create_main_frame(parent, dm, on_initialization_complete):
     settings_button = None
     
     # 添加功能按钮 - 宽度填满容器
+    buttons = []  # 存储所有按钮的列表
+    
     for button_info in function_buttons:
         # 获取当前语言的按钮文本
         if isinstance(button_info["text"], dict):
@@ -224,15 +229,19 @@ def create_main_frame(parent, dm, on_initialization_complete):
                         dark_image=Image.open(icon_path),
                         size=(24, 24)
                     )
-                except:
+                except Exception as e:
+                    print(f"加载图标失败: {e}")
                     # 如果是设置图标且加载失败，尝试重新创建
                     if button_info["text"] == buttons_text_settings:
                         create_settings_icon(icon_path, color="#3B82F6")
-                        button_icon = ctk.CTkImage(
-                            light_image=Image.open(icon_path),
-                            dark_image=Image.open(icon_path),
-                            size=(24, 24)
-                        )
+                        try:
+                            button_icon = ctk.CTkImage(
+                                light_image=Image.open(icon_path),
+                                dark_image=Image.open(icon_path),
+                                size=(24, 24)
+                            )
+                        except:
+                            button_icon = None
                     else:
                         button_icon = None
         
@@ -251,8 +260,10 @@ def create_main_frame(parent, dm, on_initialization_complete):
                 text_color=text_color,
                 font=button_font,
                 anchor="w",  # 左对齐
-                command=lambda: Settings_Open(btn)  # 传递按钮引用
+                command=None  # 稍后设置
             )
+            # 设置按钮的特殊命令
+            btn.configure(command=lambda b=btn: Settings_Open(b))
             settings_button = btn  # 保存设置按钮的引用
         else:
             # 其他按钮正常创建
@@ -271,6 +282,7 @@ def create_main_frame(parent, dm, on_initialization_complete):
                 command=button_info["command"]
             )
         
+        buttons.append(btn)  # 添加到按钮列表
         btn.pack(side="top", fill="x", pady=(0, 5))
     
     # 添加底部版本信息
