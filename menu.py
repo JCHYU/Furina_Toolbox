@@ -5,11 +5,9 @@ from PIL import Image
 from data_manager import DataManager
 
 def create_sidebar(parent, dm, on_button_click):
-    # 获取语言设置
     language = dm.get_config("Language", "English")
     image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
     
-    # 多语言文本
     text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
     buttons_text_login = {"Chinese": "登录", "English": "Login"}
     buttons_text_main = {"Chinese": "主页", "English": "Main"}
@@ -17,15 +15,13 @@ def create_sidebar(parent, dm, on_button_click):
     buttons_text_translate = {"Chinese": "翻译", "English": "Translate"}
     buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
     
-    # 创建侧边栏框架
     sidebar = ctk.CTkFrame(
         parent,
-        fg_color="#F8FAFC",  # 浅灰蓝色背景
-        corner_radius=0,     # 直角
+        fg_color="#F8FAFC",
+        corner_radius=0,
     )
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
     
-    # 添加应用标题
     app_title = ctk.CTkLabel(
         sidebar,
         text=text_title[language],
@@ -85,33 +81,27 @@ def create_sidebar(parent, dm, on_button_click):
                 btn.configure(image=normal_icon)
             except:
                 pass
-    
-    # 创建登录按钮
+
     create_button(button_container, buttons_text_login, "character.png", "login", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, False, buttons)
     
-    # 创建主页按钮（选中状态）
     create_button(button_container, buttons_text_main, "character.png", "main", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, True, buttons)
     
-    # 创建启动游戏按钮
     create_button(button_container, buttons_text_start, "weapon.png", "start", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, False, buttons)
     
-    # 创建翻译按钮
     create_button(button_container, buttons_text_translate, "material.png", "translate", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, False, buttons)
     
-    # 创建设置按钮（特殊处理）
     settings_button = create_settings_button(button_container, buttons_text_settings, "settings_normal.png", 
                                            language, image_data, button_height, button_font, 
                                            button_fg, button_hover, text_color, on_settings_click, buttons)
     
-    # 添加底部版本信息
     bottom_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
     bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
     

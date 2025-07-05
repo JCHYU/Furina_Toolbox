@@ -7,7 +7,6 @@ def create_main_frame(parent, dm):
     frame.configure(fg_color="#FFFFFF")
     frame.pack(fill="both", expand=True)
     
-    # 获取当前语言设置
     language = dm.get_config("Language", "English")
     
     # 添加欢迎内容
