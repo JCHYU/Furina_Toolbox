@@ -1,3 +1,4 @@
+# 这是 main.py (主页) 的代码
 import customtkinter as ctk
 import os
 from PIL import Image, ImageDraw
