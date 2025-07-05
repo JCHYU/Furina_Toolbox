@@ -10,6 +10,7 @@ data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
 exec_path = os.path.dirname(os.path.abspath(__file__))
 
+text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 buttons_text_login = {"Chinese": "登录", "English": "Login"}
 buttons_text_main = {"Chinese": "主页", "English": "Main"}
 buttons_text_start = {"Chinese": "启动游戏", "English": "Start Game"}
@@ -126,7 +127,7 @@ def create_main_frame(parent, dm, on_initialization_complete):
     # 添加应用标题
     app_title = ctk.CTkLabel(
         sidebar,
-        text="Furina Toolbox",
+        text=text_title [ language ],
         font=("Segoe UI", 16, "bold"),
         text_color="#1E3A8A",  # 深蓝色
     )
