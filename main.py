@@ -13,6 +13,10 @@ exec_path = os.path.dirname(os.path.abspath(__file__))
 dm = DataManager()
 dm.load(data)
 
+# 图标状态路径
+icon_settings_normal= "settings\\settings_normal.png"
+icon_settings_click = "settings\\settings_click.png"
+
 # 多语言
 language = dm.get_config("Language", "English")
 text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
@@ -25,8 +29,57 @@ buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
 # 布局
 weight = 0.2 # 侧边栏与总窗口宽度之比
 
-def Settings_Open():
-    pass
+# 创建不同状态的设置图标
+def create_settings_icons():
+    """创建不同状态的设置图标"""
+    # 确保settings目录存在
+    settings_dir = os.path.join(image_data, "settings")
+    if not os.path.exists(settings_dir):
+        os.makedirs(settings_dir)
+    
+    # 创建正常状态图标
+    normal_path = os.path.join(image_data, icon_settings_normal)
+    if not os.path.exists(normal_path):
+        create_settings_icon(normal_path, color="#3B82F6")  # 蓝色
+    
+    # 创建点击状态图标
+    click_path = os.path.join(image_data, icon_settings_click)
+    if not os.path.exists(click_path):
+        create_settings_icon(click_path, color="#1D4ED8")  # 深蓝色
+
+def Settings_Open(btn):
+    """设置按钮点击事件，更改图标为点击状态"""
+    try:
+        # 获取点击状态图标路径
+        icon_path = os.path.join(image_data, icon_settings_click)
+        
+        # 如果图标文件存在，则更新按钮图标
+        if os.path.exists(icon_path):
+            click_icon = ctk.CTkImage(
+                light_image=Image.open(icon_path),
+                dark_image=Image.open(icon_path),
+                size=(24, 24)
+            )
+            btn.configure(image=click_icon)
+            
+            # 设置定时器，500ms后恢复为正常图标
+            btn.after(500, lambda: restore_settings_icon(btn))
+    except Exception as e:
+        print(f"设置按钮点击事件错误: {e}")
+
+def restore_settings_icon(btn):
+    """恢复设置按钮为正常状态图标"""
+    try:
+        icon_path = os.path.join(image_data, icon_settings_normal)
+        if os.path.exists(icon_path):
+            normal_icon = ctk.CTkImage(
+                light_image=Image.open(icon_path),
+                dark_image=Image.open(icon_path),
+                size=(24, 24)
+            )
+            btn.configure(image=normal_icon)
+    except Exception as e:
+        print(f"恢复设置图标错误: {e}")
 
 def Login_Open():
     pass
@@ -60,13 +113,13 @@ function_buttons = [
     },
     {
         "text": buttons_text_settings,
-        "icon": "settings\\settings_normal.png",
-        "command": Settings_Open
+        "icon": icon_settings_normal,
+        "command": None  # 这里设置为None，因为我们将在创建按钮时单独处理
     }
 ]
 
-# 创建设置图标函数
-def create_settings_icon(icon_path):
+# 创建设置图标函数（增强版）
+def create_settings_icon(icon_path, color="#3B82F6"):
     """动态生成设置图标"""
     try:
         img_size = (32, 32)
@@ -75,12 +128,12 @@ def create_settings_icon(icon_path):
         center = (img_size[0] // 2, img_size[1] // 2)
         radius = 12
         
-        # 绘制齿轮
+        # 绘制齿轮 - 使用指定颜色
         draw.ellipse([(center[0]-radius, center[1]-radius), 
                      (center[0]+radius, center[1]+radius)], 
-                     outline="#1a56db", width=2)
+                     outline=color, width=2)
         
-        # 绘制齿轮齿
+        # 绘制齿轮齿 - 使用指定颜色
         for i in range(8):
             angle = i * 45
             rad_angle = radians(angle)
@@ -90,8 +143,10 @@ def create_settings_icon(icon_path):
             y1 = center[1] + int(radius * 0.7 * sin_val)
             x2 = center[0] + int(radius * 1.3 * cos_val)
             y2 = center[1] + int(radius * 1.3 * sin_val)
-            draw.line([(x1, y1), (x2, y2)], fill="#1a56db", width=2)
+            draw.line([(x1, y1), (x2, y2)], fill=color, width=2)
         
+        # 确保目录存在
+        os.makedirs(os.path.dirname(icon_path), exist_ok=True)
         img.save(icon_path)
         return True
     except Exception as e:
@@ -106,6 +161,9 @@ def create_main_frame(parent, dm, on_initialization_complete):
     :param dm: DataManager实例
     :param on_initialization_complete: 初始化完成回调函数
     """
+    # 创建不同状态的设置图标
+    create_settings_icons()
+    
     # 创建主框架
     frame = ctk.CTkFrame(parent)
     frame.configure(fg_color="#FFFFFF")  # 白色背景
@@ -144,6 +202,9 @@ def create_main_frame(parent, dm, on_initialization_complete):
     button_hover = "#EFF6FF"  # 非常淡的蓝色
     text_color = "#1E40AF"    # 蓝色
     
+    # 保存设置按钮的引用
+    settings_button = None
+    
     # 添加功能按钮 - 宽度填满容器
     for button_info in function_buttons:
         # 获取当前语言的按钮文本
@@ -164,23 +225,52 @@ def create_main_frame(parent, dm, on_initialization_complete):
                         size=(24, 24)
                     )
                 except:
-                    button_icon = None
+                    # 如果是设置图标且加载失败，尝试重新创建
+                    if button_info["text"] == buttons_text_settings:
+                        create_settings_icon(icon_path, color="#3B82F6")
+                        button_icon = ctk.CTkImage(
+                            light_image=Image.open(icon_path),
+                            dark_image=Image.open(icon_path),
+                            size=(24, 24)
+                        )
+                    else:
+                        button_icon = None
         
         # 创建按钮 - 使用fill="x"确保宽度填满容器
-        btn = ctk.CTkButton(
-            button_container,
-            text=button_text,
-            image=button_icon,
-            compound="left",
-            height=button_height,
-            corner_radius=8,  # 轻微圆角
-            fg_color=button_fg,
-            hover_color=button_hover,
-            text_color=text_color,
-            font=button_font,
-            anchor="w",  # 左对齐
-            command=button_info["command"]
-        )
+        if button_info["text"] == buttons_text_settings:
+            # 设置按钮特殊处理
+            btn = ctk.CTkButton(
+                button_container,
+                text=button_text,
+                image=button_icon,
+                compound="left",
+                height=button_height,
+                corner_radius=8,  # 轻微圆角
+                fg_color=button_fg,
+                hover_color=button_hover,
+                text_color=text_color,
+                font=button_font,
+                anchor="w",  # 左对齐
+                command=lambda: Settings_Open(btn)  # 传递按钮引用
+            )
+            settings_button = btn  # 保存设置按钮的引用
+        else:
+            # 其他按钮正常创建
+            btn = ctk.CTkButton(
+                button_container,
+                text=button_text,
+                image=button_icon,
+                compound="left",
+                height=button_height,
+                corner_radius=8,  # 轻微圆角
+                fg_color=button_fg,
+                hover_color=button_hover,
+                text_color=text_color,
+                font=button_font,
+                anchor="w",  # 左对齐
+                command=button_info["command"]
+            )
+        
         btn.pack(side="top", fill="x", pady=(0, 5))
     
     # 添加底部版本信息
