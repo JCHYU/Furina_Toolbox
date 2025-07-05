@@ -10,12 +10,16 @@ data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
 exec_path = os.path.dirname(os.path.abspath(__file__))
 
+# 多语言
 text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 buttons_text_login = {"Chinese": "登录", "English": "Login"}
 buttons_text_main = {"Chinese": "主页", "English": "Main"}
 buttons_text_start = {"Chinese": "启动游戏", "English": "Start Game"}
 buttons_text_translate = {"Chinese": "翻译", "English": "Translate"}
 buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
+
+# 布局
+weight = 0.2 # 侧边栏与总窗口宽度之比
 
 # 初始化数据管理器
 dm = DataManager()
@@ -114,9 +118,6 @@ def create_main_frame(parent, dm, on_initialization_complete):
     main_container = ctk.CTkFrame(frame, fg_color="transparent")
     main_container.place(relx=0, rely=0, relwidth=1, relheight=1)
     
-    # 设置侧边栏宽度比例 (20%)
-    weight = 0.2
-    
     # 创建左侧功能区 - 简洁现代风格
     sidebar = ctk.CTkFrame(
         main_container,
@@ -203,7 +204,6 @@ def create_main_frame(parent, dm, on_initialization_complete):
     )
     version_info.pack(side="top", fill="x", pady=5)
     
-    # 创建右侧内容区域 - 宽度为1-weight
     content_frame = ctk.CTkFrame(
         main_container,
         fg_color="#FFFFFF",
