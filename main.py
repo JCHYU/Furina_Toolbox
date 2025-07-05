@@ -8,7 +8,7 @@ from initialization import create_initialization_frame
 
 # 路径配置
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
-image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
+image_data = data + "image\\"
 exec_path = os.path.dirname(os.path.abspath(__file__))  
 dm = DataManager()
 dm.load(data)
@@ -25,7 +25,6 @@ buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
 # 布局
 weight = 0.2 # 侧边栏与总窗口宽度之比
 
-# 打开设置的回调函数
 def Settings_Open():
     pass
 
@@ -61,7 +60,7 @@ function_buttons = [
     },
     {
         "text": buttons_text_settings,
-        "icon": "\\settings\\settings_normal.png",
+        "icon": "settings\\settings_normal.png",
         "command": Settings_Open
     }
 ]
