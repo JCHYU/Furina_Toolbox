@@ -1,4 +1,4 @@
-# FurinaToolbox.py (主程序)
+# 这是 FurinaToolbox.py (主程序) 的代码
 import customtkinter as ctk
 import os
 from tkinter.messagebox import showerror
@@ -8,6 +8,7 @@ import ctypes
 from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
+from menu import create_sidebar  # 修改为导入 create_sidebar 函数
 
 # 检查是否在调试模式
 is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
@@ -104,16 +105,30 @@ needs_initialization = not settings.get('Initialization', False) if settings els
 # 全局变量
 init_frame = None  # 添加全局变量定义
 
+def on_button_click(action):
+    """处理侧边栏按钮点击事件"""
+    print(f"按钮点击: {action}")
+    # 这里可以添加切换页面等逻辑
+
 def show_main():
-    global init_frame  # 声明使用全局变量
+    # 创建主容器
+    main_container = ctk.CTkFrame(win, fg_color="transparent")
+    main_container.pack(fill="both", expand=True)
     
-    # 移除初始化框架
-    if init_frame:
-        init_frame.destroy()
-        init_frame = None  # 重置为None
+    # 创建侧边栏 (使用函数式版本)
+    sidebar_frame = create_sidebar(main_container, dm, on_button_click)
     
-    # 创建主界面框架
-    main_frame = create_main_frame(win, dm, on_initialization_complete)
+    # 创建右侧内容区域
+    content_frame = ctk.CTkFrame(
+        main_container,
+        fg_color="#FFFFFF",
+        corner_radius=0,
+        border_width=0
+    )
+    content_frame.pack(side="right", fill="both", expand=True)
+    
+    # 创建主页内容
+    main_frame = create_main_frame(content_frame, dm)
     main_frame.pack(fill="both", expand=True)
 
 # 初始化完成回调
@@ -124,6 +139,7 @@ def on_initialization_complete():
 if needs_initialization:
     outlog("即将进行初始化操作。About to initialize.")
     init_frame = create_initialization_frame(win, dm, on_initialization_complete)
+    init_frame.pack(fill="both", expand=True)
 else:
     outlog("加载主页。Load the main page.")
     show_main()
