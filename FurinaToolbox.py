@@ -11,10 +11,7 @@ from main import create_main_frame
 from menu import create_sidebar
 import json
 
-# 检查是否在调试模式
 is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
-
-# 日志函数
 def outlog(log):
     if is_debug:
         print("[控制台Console]" + log)
