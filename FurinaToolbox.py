@@ -21,9 +21,8 @@ if is_debug:
 else:
     print("程序运行模式为 可执行程序。您将不会看到控制台中的调试日志。")
 
-# 路径配置
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
-image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
+image_data = data + "image\\"
 
 # 初始化数据管理器
 dm = DataManager()
