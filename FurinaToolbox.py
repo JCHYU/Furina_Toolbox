@@ -24,16 +24,14 @@ else:
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = data + "image\\"
 
-# 初始化数据管理器
 dm = DataManager()
 dm.load(data)
 
-# 获取主显示器信息
-primary_monitor = get_monitors()[0]
-screen_width, screen_height = primary_monitor.width, primary_monitor.height
-
-# 获取系统DPI缩放比例
+screen_width, screen_height = 0
 def get_dpi():
+    primary_monitor = get_monitors()[0]
+    global screen_width, screen_height
+    screen_width, screen_height = primary_monitor.width, primary_monitor.height
     try:
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
     except:
