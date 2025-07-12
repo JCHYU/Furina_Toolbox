@@ -9,6 +9,7 @@ from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
 from menu import create_sidebar  # 导入 create_sidebar 函数
+from click import create_click_frame  # 导入连点器页面
 
 def error ( log ):
     outlog ( log )
@@ -118,18 +119,38 @@ needs_initialization = not settings.get('Initialization', False) if settings els
 
 # 全局变量
 init_frame = None  # 添加全局变量定义
+content_frame = None  # 存储内容框架引用
 
 def on_button_click(action):
     """处理侧边栏按钮点击事件"""
+    global content_frame
+    
     print(f"按钮点击: {action}")
-    # 这里可以添加切换页面等逻辑
+    
+    if content_frame is None:
+        return
+    
+    # 隐藏当前页面
+    if hasattr(content_frame, 'current_page') and content_frame.current_page in content_frame.pages:
+        content_frame.pages[content_frame.current_page].pack_forget()
+    
+    # 显示新页面
+    if action in content_frame.pages:
+        content_frame.pages[action].pack(fill="both", expand=True)
+        content_frame.current_page = action
+        print(f"已切换到 {action} 页面")
+    else:
+        print(f"找不到 {action} 页面")
 
 def show_main():
+    global content_frame
+    
     main_container = ctk.CTkFrame(win, fg_color="transparent")
     main_container.pack(fill="both", expand=True)
     
     # 创建侧边栏 (传递正确的 image_data 路径)
     sidebar_frame = create_sidebar(main_container, dm, on_button_click, image_data)
+    sidebar_frame.pack(side="left", fill="y", padx=0, pady=0)
     
     # 创建右侧内容区域
     content_frame = ctk.CTkFrame(
@@ -140,9 +161,19 @@ def show_main():
     )
     content_frame.pack(side="right", fill="both", expand=True)
     
-    # 创建主页内容
-    main_frame = create_main_frame(content_frame, dm)
-    main_frame.pack(fill="both", expand=True)
+    # 创建多个页面（堆叠在一起）
+    content_frame.pages = {
+        "main": create_main_frame(content_frame, dm),
+        "click": create_click_frame(content_frame, dm),
+        # 添加其他页面...
+    }
+    
+    # 设置当前页面为主页
+    content_frame.current_page = "main"
+    content_frame.pages["main"].pack(fill="both", expand=True)
+    
+    # 存储内容框架引用
+    win.content_frame = content_frame
 
 # 初始化完成回调
 def on_initialization_complete():

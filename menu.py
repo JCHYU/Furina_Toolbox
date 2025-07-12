@@ -1,3 +1,4 @@
+# 这是 menu.py (侧边栏管理器) 的代码
 import customtkinter as ctk
 import os
 from PIL import Image
@@ -63,7 +64,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
             "selected": False
         },
         {
-            "id": "Click", 
+            "id": "click",  # 修正为小写以匹配主程序
             "text": Button_Click, 
             "icons": {
                 "normal": None,
@@ -76,9 +77,9 @@ def create_sidebar(parent, dm, on_button_click, image_data):
             "id": "settings", 
             "text": Button_Settings, 
             "icons": {
-                "normal": "settings\\settings_normal.png",
-                "hover": "settings\\settings_hover.png",
-                "click": "settings\\settings_click.png"
+                "normal": "settings/settings_normal.png",
+                "hover": "settings/settings_hover.png",
+                "click": "settings/settings_click.png"
             },
             "selected": False,
             "special": True
@@ -87,7 +88,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
 
     # 创建侧边栏框架
     sidebar = ctk.CTkFrame(parent, fg_color="#F8FAFC", corner_radius=0)
-    sidebar.pack(side="left", fill="y")
+    sidebar.pack(side="left", fill="y", padx=0, pady=0)
     
     # 标题
     title_text = Text_Title.get(language, "Furina Toolbox")
@@ -102,8 +103,8 @@ def create_sidebar(parent, dm, on_button_click, image_data):
     button_container = ctk.CTkFrame(sidebar, fg_color="transparent")
     button_container.pack(side="top", fill="both", expand=True, padx=10, pady=5)
     
-    # 创建所有按钮
-    buttons = []
+    # 创建所有按钮并存储引用
+    buttons = {}
     for config in button_configs:
         btn = create_button(
             button_container,
@@ -112,10 +113,13 @@ def create_sidebar(parent, dm, on_button_click, image_data):
             config.get("icons", {}),
             config["selected"],
             image_data,
-            on_button_click,
+            lambda action=config["id"]: handle_button_click(action, buttons, on_button_click),
             is_settings=config.get("special", False)
         )
-        buttons.append(btn)
+        buttons[config["id"]] = btn
+    
+    # 存储按钮引用到侧边栏
+    sidebar.buttons = buttons
     
     # 底部版本信息
     bottom_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
@@ -130,7 +134,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
     
     return sidebar
 
-def create_button(parent, action, text, icons_config, selected, image_data, on_button_click, is_settings=False):
+def create_button(parent, action, text, icons_config, selected, image_data, button_click_handler, is_settings=False):
     """
     创建统一风格的按钮
     :param parent: 父容器
@@ -139,7 +143,7 @@ def create_button(parent, action, text, icons_config, selected, image_data, on_b
     :param icons_config: 图标配置字典，包含normal、hover、click三种状态的图标路径
     :param selected: 是否选中
     :param image_data: 图片目录
-    :param on_button_click: 点击回调
+    :param button_click_handler: 点击回调处理函数
     :param is_settings: 是否为设置按钮
     :return: 创建的按钮对象
     """
@@ -153,10 +157,16 @@ def create_button(parent, action, text, icons_config, selected, image_data, on_b
         fg_color=SELECTED_COLOR,
         corner_radius=2
     )
+    
+    # 设置初始选中状态
     if selected:
         indicator.place(relx=0, rely=0.5, relheight=0.7, anchor="w")
+        button_frame.indicator = indicator  # 存储指示器引用
+        button_frame.selected = True
     else:
         indicator.place_forget()
+        button_frame.indicator = indicator  # 存储指示器引用
+        button_frame.selected = False
     
     # 加载所有图标状态
     icons = {}
@@ -172,17 +182,14 @@ def create_button(parent, action, text, icons_config, selected, image_data, on_b
                     dark_image=Image.open(full_path),
                     size=(24, 24)
                 )
-                print(f"成功加载 {state} 状态图标: {full_path}")
             except Exception as e:
                 print(f"加载 {state} 状态图标失败: {e}")
-        else:
-            print(f"{state} 状态图标文件不存在: {full_path}")
     
     # 创建按钮命令
     if is_settings:
-        command = lambda: handle_settings_click(btn, icons, on_button_click)
+        command = lambda: handle_settings_click(button_frame, icons, button_click_handler)
     else:
-        command = lambda: on_button_click(action)
+        command = lambda: button_click_handler(action)
     
     # 创建按钮
     btn = ctk.CTkButton(
@@ -214,7 +221,30 @@ def create_button(parent, action, text, icons_config, selected, image_data, on_b
         btn.configure(fg_color=BUTTON_HOVER)
     
     btn.pack(side="top", fill="x", pady=(0, 5))
-    return btn
+    
+    # 存储按钮引用到框架
+    button_frame.button = btn
+    button_frame.action = action
+    
+    return button_frame
+
+def handle_button_click(action, buttons, on_button_click):
+    """处理按钮点击事件"""
+    # 更新所有按钮的选中状态
+    for btn_id, button_frame in buttons.items():
+        if btn_id == action:
+            # 设置选中状态
+            button_frame.indicator.place(relx=0, rely=0.5, relheight=0.7, anchor="w")
+            button_frame.button.configure(fg_color=BUTTON_HOVER)
+            button_frame.selected = True
+        else:
+            # 取消选中状态
+            button_frame.indicator.place_forget()
+            button_frame.button.configure(fg_color=BUTTON_FG)
+            button_frame.selected = False
+    
+    # 调用外部点击处理函数
+    on_button_click(action)
 
 def on_button_enter(btn):
     """鼠标进入按钮时显示悬停图标"""
@@ -244,17 +274,17 @@ def on_button_release(btn):
         # 鼠标不在按钮上，显示正常图标
         btn.configure(image=btn.icons["normal"])
 
-def handle_settings_click(btn, icons, on_button_click):
+def handle_settings_click(button_frame, icons, button_click_handler):
     """处理设置按钮点击事件"""
     # 更新为点击状态图标（如果存在）
     if "click" in icons:
-        btn.configure(image=icons["click"])
+        button_frame.button.configure(image=icons["click"])
     
     # 触发回调
-    on_button_click("settings")
+    button_click_handler("settings")
     
     # 500ms后恢复图标
-    btn.after(500, lambda: restore_settings_icon(btn, icons))
+    button_frame.button.after(500, lambda: restore_settings_icon(button_frame.button, icons))
 
 def restore_settings_icon(btn, icons):
     """恢复设置按钮图标"""
