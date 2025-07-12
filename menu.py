@@ -4,226 +4,180 @@ import os
 from PIL import Image
 from data_manager import DataManager
 
+# 按钮样式常量
+BUTTON_HEIGHT = 42
+BUTTON_FONT = ("Segoe UI", 12)
+BUTTON_FG = "transparent"
+BUTTON_HOVER = "#EFF6FF"
+TEXT_COLOR = "#1E40AF"
+SELECTED_COLOR = "#3B82F6"
+
 def create_sidebar(parent, dm, on_button_click):
+    """
+    创建侧边栏
+    :param parent: 父容器
+    :param dm: DataManager实例
+    :param on_button_click: 按钮点击回调函数
+    :return: 侧边栏框架
+    """
     language = dm.get_config("Language", "English")
-    image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
+    image_data = os.path.join(os.getenv('LOCALAPPDATA'), "FurinaTB", "image")
     
-    text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
-    buttons_text_login = {"Chinese": "登录", "English": "Login"}
-    buttons_text_main = {"Chinese": "主页", "English": "Main"}
-    buttons_text_start = {"Chinese": "启动游戏", "English": "Start Game"}
-    buttons_text_translate = {"Chinese": "翻译", "English": "Translate"}
-    buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
+    # 所有按钮配置
+    button_configs = [
+        {"id": "login", "text": {"Chinese": "登录", "English": "Login"}, "icon": "character.png", "selected": False},
+        {"id": "main", "text": {"Chinese": "主页", "English": "Main"}, "icon": "character.png", "selected": True},
+        {"id": "start", "text": {"Chinese": "启动游戏", "English": "Start Game"}, "icon": "weapon.png", "selected": False},
+        {"id": "translate", "text": {"Chinese": "翻译", "English": "Translate"}, "icon": "material.png", "selected": False},
+        {"id": "settings", "text": {"Chinese": "设置", "English": "Settings"}, "icon": "settings_normal.png", "selected": False, "special": True}
+    ]
+
+    # 创建侧边栏框架
+    sidebar = ctk.CTkFrame(parent, fg_color="#F8FAFC", corner_radius=0)
+    sidebar.pack(side="left", fill="y")
     
-    sidebar = ctk.CTkFrame(
-        parent,
-        fg_color="#F8FAFC",
-        corner_radius=0,
-    )
-    sidebar.pack(side="left", fill="y", padx=0, pady=0)
-    
-    app_title = ctk.CTkLabel(
+    # 标题
+    title_text = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}.get(language, "Furina Toolbox")
+    ctk.CTkLabel(
         sidebar,
-        text=text_title[language],
+        text=title_text,
         font=("Segoe UI", 16, "bold"),
-        text_color="#1E3A8A",
-    )
-    app_title.pack(side="top", fill="x", padx=20, pady=(20, 15))
+        text_color="#1E3A8A"
+    ).pack(side="top", fill="x", padx=20, pady=(20, 15))
     
-    # 添加功能按钮容器
+    # 按钮容器
     button_container = ctk.CTkFrame(sidebar, fg_color="transparent")
     button_container.pack(side="top", fill="both", expand=True, padx=10, pady=5)
     
-    # 按钮配置
-    button_height = 42
-    button_font = ("Segoe UI", 12)
-    button_fg = "transparent"
-    button_hover = "#EFF6FF"  # 非常淡的蓝色
-    text_color = "#1E40AF"    # 蓝色
-    selected_color = "#3B82F6"  # 选中状态的蓝色
-    
-    # 创建按钮
+    # 创建所有按钮
     buttons = []
-    settings_button = None
+    for config in button_configs:
+        btn = create_button(
+            button_container,
+            config["id"],
+            config["text"].get(language, config["text"]["English"]),
+            config["icon"],
+            config["selected"],
+            image_data,
+            on_button_click,
+            is_settings=config.get("special", False)
+        )
+        buttons.append(btn)
     
-    def on_settings_click():
-        """设置按钮点击事件"""
-        nonlocal settings_button
-        # 更改图标为点击状态
-        click_icon_path = os.path.join(image_data, "settings_click.png")
-        if os.path.exists(click_icon_path):
-            try:
-                click_icon = ctk.CTkImage(
-                    light_image=Image.open(click_icon_path),
-                    dark_image=Image.open(click_icon_path),
-                    size=(24, 24)
-                )
-                settings_button.configure(image=click_icon)
-                
-                # 设置定时器恢复图标
-                settings_button.after(500, lambda: restore_settings_icon(settings_button))
-            except:
-                pass
-        
-        # 触发设置按钮点击回调
-        on_button_click("settings")
-    
-    def restore_settings_icon(btn):
-        """恢复设置按钮图标"""
-        normal_icon_path = os.path.join(image_data, "settings_normal.png")
-        if os.path.exists(normal_icon_path):
-            try:
-                normal_icon = ctk.CTkImage(
-                    light_image=Image.open(normal_icon_path),
-                    dark_image=Image.open(normal_icon_path),
-                    size=(24, 24)
-                )
-                btn.configure(image=normal_icon)
-            except:
-                pass
-
-    create_button(button_container, buttons_text_login, "character.png", "login", language, image_data, 
-                 button_height, button_font, button_fg, button_hover, text_color, selected_color, 
-                 on_button_click, False, buttons)
-    
-    create_button(button_container, buttons_text_main, "character.png", "main", language, image_data, 
-                 button_height, button_font, button_fg, button_hover, text_color, selected_color, 
-                 on_button_click, True, buttons)
-    
-    create_button(button_container, buttons_text_start, "weapon.png", "start", language, image_data, 
-                 button_height, button_font, button_fg, button_hover, text_color, selected_color, 
-                 on_button_click, False, buttons)
-    
-    create_button(button_container, buttons_text_translate, "material.png", "translate", language, image_data, 
-                 button_height, button_font, button_fg, button_hover, text_color, selected_color, 
-                 on_button_click, False, buttons)
-    
-    settings_button = create_settings_button(button_container, buttons_text_settings, "settings_normal.png", 
-                                           language, image_data, button_height, button_font, 
-                                           button_fg, button_hover, text_color, on_settings_click, buttons)
-    
+    # 底部版本信息
     bottom_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
     bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
     
-    version_info = ctk.CTkLabel(
+    ctk.CTkLabel(
         bottom_frame,
         text="Furina Toolbox v1.0",
         font=("Segoe UI", 10),
-        text_color="#4B5563",  # 灰色
-    )
-    version_info.pack(side="top", fill="x", pady=5)
+        text_color="#4B5563"
+    ).pack(side="top", fill="x", pady=5)
     
     return sidebar
 
-def create_button(parent, text_dict, icon_name, action, language, image_data, 
-                 button_height, button_font, button_fg, button_hover, 
-                 text_color, selected_color, on_button_click, selected, buttons):
-    """创建普通功能按钮"""
-    # 获取当前语言的按钮文本
-    button_text = text_dict.get(language, text_dict["English"])
+def create_button(parent, action, text, icon_name, selected, image_data, on_button_click, is_settings=False):
+    """
+    创建统一风格的按钮
+    :param parent: 父容器
+    :param action: 按钮动作标识
+    :param text: 按钮文本
+    :param icon_name: 图标文件名
+    :param selected: 是否选中
+    :param image_data: 图片目录
+    :param on_button_click: 点击回调
+    :param is_settings: 是否为设置按钮
+    :return: 创建的按钮对象
+    """
+    button_frame = ctk.CTkFrame(parent, fg_color="transparent", corner_radius=8)
+    button_frame.pack(fill="x", pady=(0, 5))
+    
+    # 选中指示器
+    indicator = ctk.CTkFrame(
+        button_frame,
+        width=4,
+        fg_color=SELECTED_COLOR,
+        corner_radius=2
+    )
+    if selected:
+        indicator.place(relx=0, rely=0.5, relheight=0.7, anchor="w")
+    else:
+        indicator.place_forget()
     
     # 加载图标
-    button_icon = None
     icon_path = os.path.join(image_data, icon_name)
+    icon = None
     if os.path.exists(icon_path):
         try:
-            button_icon = ctk.CTkImage(
+            icon = ctk.CTkImage(
                 light_image=Image.open(icon_path),
                 dark_image=Image.open(icon_path),
                 size=(24, 24)
             )
         except:
-            button_icon = None
+            pass
     
-    # 创建按钮容器
-    button_frame = ctk.CTkFrame(
-        parent, 
-        fg_color="transparent",
-        corner_radius=8
-    )
-    button_frame.pack(fill="x", pady=(0, 5))
-    
-    # 创建选中指示器
-    selection_indicator = ctk.CTkFrame(
-        button_frame,
-        width=4,
-        fg_color=selected_color,
-        corner_radius=2
-    )
-    selection_indicator.place(relx=0, rely=0.5, relheight=0.7, anchor="w")
-    if not selected:
-        selection_indicator.place_forget()
+    # 创建按钮命令
+    if is_settings:
+        command = lambda: handle_settings_click(btn, image_data, on_button_click)
+    else:
+        command = lambda: on_button_click(action)
     
     # 创建按钮
     btn = ctk.CTkButton(
         button_frame,
-        text=button_text,
-        image=button_icon,
+        text=text,
+        image=icon,
         compound="left",
-        height=button_height,
+        height=BUTTON_HEIGHT,
         corner_radius=8,
-        fg_color=button_fg,
-        hover_color=button_hover,
-        text_color=text_color,
-        font=button_font,
+        fg_color=BUTTON_FG,
+        hover_color=BUTTON_HOVER,
+        text_color=TEXT_COLOR,
+        font=BUTTON_FONT,
         anchor="w",
-        command=lambda: on_button_click(action)
+        command=command
     )
     
     # 设置选中样式
     if selected:
-        btn.configure(fg_color=button_hover)
+        btn.configure(fg_color=BUTTON_HOVER)
     
-    buttons.append(btn)
     btn.pack(side="top", fill="x", pady=(0, 5))
-    
     return btn
 
-def create_settings_button(parent, text_dict, icon_name, language, image_data, 
-                          button_height, button_font, button_fg, 
-                          button_hover, text_color, on_settings_click, buttons):
-    """创建设置按钮（特殊处理）"""
-    # 获取当前语言的按钮文本
-    button_text = text_dict.get(language, text_dict["English"])
-    
-    # 加载图标
-    button_icon = None
-    icon_path = os.path.join(image_data, icon_name)
-    if os.path.exists(icon_path):
+def handle_settings_click(btn, image_data, on_button_click):
+    """处理设置按钮点击事件"""
+    # 更新为点击状态图标
+    click_icon_path = os.path.join(image_data, "settings_click.png")
+    if os.path.exists(click_icon_path):
         try:
-            button_icon = ctk.CTkImage(
-                light_image=Image.open(icon_path),
-                dark_image=Image.open(icon_path),
+            click_icon = ctk.CTkImage(
+                light_image=Image.open(click_icon_path),
+                dark_image=Image.open(click_icon_path),
                 size=(24, 24)
             )
+            btn.configure(image=click_icon)
         except:
-            button_icon = None
+            pass
     
-    # 创建按钮容器
-    button_frame = ctk.CTkFrame(
-        parent, 
-        fg_color="transparent",
-        corner_radius=8
-    )
-    button_frame.pack(fill="x", pady=(0, 5))
+    # 触发回调
+    on_button_click("settings")
     
-    # 创建按钮
-    btn = ctk.CTkButton(
-        button_frame,
-        text=button_text,
-        image=button_icon,
-        compound="left",
-        height=button_height,
-        corner_radius=8,
-        fg_color=button_fg,
-        hover_color=button_hover,
-        text_color=text_color,
-        font=button_font,
-        anchor="w",
-        command=on_settings_click
-    )
-    
-    buttons.append(btn)
-    btn.pack(side="top", fill="x", pady=(0, 5))
-    
-    return btn
+    # 500ms后恢复图标
+    btn.after(500, lambda: restore_settings_icon(btn, image_data))
+
+def restore_settings_icon(btn, image_data):
+    """恢复设置按钮图标"""
+    normal_icon_path = os.path.join(image_data, "settings_normal.png")
+    if os.path.exists(normal_icon_path):
+        try:
+            normal_icon = ctk.CTkImage(
+                light_image=Image.open(normal_icon_path),
+                dark_image=Image.open(normal_icon_path),
+                size=(24, 24)
+            )
+            btn.configure(image=normal_icon)
+        except:
+            pass
