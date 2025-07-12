@@ -12,24 +12,27 @@ BUTTON_HOVER = "#EFF6FF"
 TEXT_COLOR = "#1E40AF"
 SELECTED_COLOR = "#3B82F6"
 
-def create_sidebar(parent, dm, on_button_click):
+def create_sidebar(parent, dm, on_button_click, image_data):
     """
     创建侧边栏
     :param parent: 父容器
     :param dm: DataManager实例
     :param on_button_click: 按钮点击回调函数
+    :param image_data: 图片目录路径
     :return: 侧边栏框架
     """
     language = dm.get_config("Language", "English")
-    image_data = os.path.join(os.getenv('LOCALAPPDATA'), "FurinaTB", "image")
     
-    # 所有按钮配置
+    # 所有按钮配置 - 只有设置按钮有图标
     button_configs = [
-        {"id": "login", "text": {"Chinese": "登录", "English": "Login"}, "icon": "character.png", "selected": False},
-        {"id": "main", "text": {"Chinese": "主页", "English": "Main"}, "icon": "character.png", "selected": True},
-        {"id": "start", "text": {"Chinese": "启动游戏", "English": "Start Game"}, "icon": "weapon.png", "selected": False},
-        {"id": "translate", "text": {"Chinese": "翻译", "English": "Translate"}, "icon": "material.png", "selected": False},
-        {"id": "settings", "text": {"Chinese": "设置", "English": "Settings"}, "icon": "settings_normal.png", "selected": False, "special": True}
+        {"id": "login", "text": {"Chinese": "登录", "English": "Login"}, "icon": None, "selected": False},
+        {"id": "main", "text": {"Chinese": "主页", "English": "Main"}, "icon": None, "selected": True},
+        {"id": "start", "text": {"Chinese": "启动游戏", "English": "Start Game"}, "icon": None, "selected": False},
+        {"id": "translate", "text": {"Chinese": "翻译", "English": "Translate"}, "icon": None, "selected": False},
+        # 设置按钮配置
+        {"id": "settings", "text": {"Chinese": "设置", "English": "Settings"}, "icon": "settings/settings_normal.png", 
+         "hover_icon": "settings/settings_hover.png", "click_icon": "settings/settings_click.png", 
+         "selected": False, "special": True}
     ]
 
     # 创建侧边栏框架
@@ -56,7 +59,9 @@ def create_sidebar(parent, dm, on_button_click):
             button_container,
             config["id"],
             config["text"].get(language, config["text"]["English"]),
-            config["icon"],
+            config.get("icon", None),  # 正常图标
+            config.get("hover_icon", None),  # 悬停图标
+            config.get("click_icon", None),  # 点击图标
             config["selected"],
             image_data,
             on_button_click,
@@ -77,13 +82,16 @@ def create_sidebar(parent, dm, on_button_click):
     
     return sidebar
 
-def create_button(parent, action, text, icon_name, selected, image_data, on_button_click, is_settings=False):
+def create_button(parent, action, text, icon_name, hover_icon_name, click_icon_name, 
+                 selected, image_data, on_button_click, is_settings=False):
     """
     创建统一风格的按钮
     :param parent: 父容器
     :param action: 按钮动作标识
     :param text: 按钮文本
-    :param icon_name: 图标文件名
+    :param icon_name: 正常状态图标文件名
+    :param hover_icon_name: 悬停状态图标文件名
+    :param click_icon_name: 点击状态图标文件名
     :param selected: 是否选中
     :param image_data: 图片目录
     :param on_button_click: 点击回调
@@ -106,21 +114,46 @@ def create_button(parent, action, text, icon_name, selected, image_data, on_butt
         indicator.place_forget()
     
     # 加载图标
-    icon_path = os.path.join(image_data, icon_name)
-    icon = None
-    if os.path.exists(icon_path):
-        try:
-            icon = ctk.CTkImage(
-                light_image=Image.open(icon_path),
-                dark_image=Image.open(icon_path),
-                size=(24, 24)
-            )
-        except:
-            pass
+    icons = {}
+    if icon_name:  # 正常状态图标
+        icon_path = os.path.join(image_data, icon_name)
+        if os.path.exists(icon_path):
+            try:
+                icons["normal"] = ctk.CTkImage(
+                    light_image=Image.open(icon_path),
+                    dark_image=Image.open(icon_path),
+                    size=(24, 24)
+                )
+            except Exception as e:
+                print(f"加载正常图标失败: {e}")
+    
+    if hover_icon_name:  # 悬停状态图标
+        icon_path = os.path.join(image_data, hover_icon_name)
+        if os.path.exists(icon_path):
+            try:
+                icons["hover"] = ctk.CTkImage(
+                    light_image=Image.open(icon_path),
+                    dark_image=Image.open(icon_path),
+                    size=(24, 24)
+                )
+            except Exception as e:
+                print(f"加载悬停图标失败: {e}")
+    
+    if click_icon_name:  # 点击状态图标
+        icon_path = os.path.join(image_data, click_icon_name)
+        if os.path.exists(icon_path):
+            try:
+                icons["click"] = ctk.CTkImage(
+                    light_image=Image.open(icon_path),
+                    dark_image=Image.open(icon_path),
+                    size=(24, 24)
+                )
+            except Exception as e:
+                print(f"加载点击图标失败: {e}")
     
     # 创建按钮命令
     if is_settings:
-        command = lambda: handle_settings_click(btn, image_data, on_button_click)
+        command = lambda: handle_settings_click(btn, icons, on_button_click)
     else:
         command = lambda: on_button_click(action)
     
@@ -128,7 +161,7 @@ def create_button(parent, action, text, icon_name, selected, image_data, on_butt
     btn = ctk.CTkButton(
         button_frame,
         text=text,
-        image=icon,
+        image=icons.get("normal", None),  # 默认使用正常图标
         compound="left",
         height=BUTTON_HEIGHT,
         corner_radius=8,
@@ -140,44 +173,51 @@ def create_button(parent, action, text, icon_name, selected, image_data, on_butt
         command=command
     )
     
+    # 添加悬停效果（仅当有悬停图标时）
+    if "hover" in icons:
+        btn.bind("<Enter>", lambda event, b=btn, i=icons: on_button_enter(b, i))
+        btn.bind("<Leave>", lambda event, b=btn, i=icons: on_button_leave(b, i))
+    
     # 设置选中样式
     if selected:
         btn.configure(fg_color=BUTTON_HOVER)
     
     btn.pack(side="top", fill="x", pady=(0, 5))
+    
+    # 保存图标引用
+    btn.icons = icons
+    
     return btn
 
-def handle_settings_click(btn, image_data, on_button_click):
+def on_button_enter(btn, icons):
+    """鼠标进入按钮时显示悬停图标"""
+    if "hover" in icons:
+        btn.configure(image=icons["hover"])
+
+def on_button_leave(btn, icons):
+    """鼠标离开按钮时显示正常图标"""
+    if "normal" in icons:
+        btn.configure(image=icons["normal"])
+
+def handle_settings_click(btn, icons, on_button_click):
     """处理设置按钮点击事件"""
     # 更新为点击状态图标
-    click_icon_path = os.path.join(image_data, "settings_click.png")
-    if os.path.exists(click_icon_path):
-        try:
-            click_icon = ctk.CTkImage(
-                light_image=Image.open(click_icon_path),
-                dark_image=Image.open(click_icon_path),
-                size=(24, 24)
-            )
-            btn.configure(image=click_icon)
-        except:
-            pass
+    if "click" in icons:
+        btn.configure(image=icons["click"])
     
     # 触发回调
     on_button_click("settings")
     
     # 500ms后恢复图标
-    btn.after(500, lambda: restore_settings_icon(btn, image_data))
+    btn.after(500, lambda: restore_settings_icon(btn, icons))
 
-def restore_settings_icon(btn, image_data):
+def restore_settings_icon(btn, icons):
     """恢复设置按钮图标"""
-    normal_icon_path = os.path.join(image_data, "settings_normal.png")
-    if os.path.exists(normal_icon_path):
-        try:
-            normal_icon = ctk.CTkImage(
-                light_image=Image.open(normal_icon_path),
-                dark_image=Image.open(normal_icon_path),
-                size=(24, 24)
-            )
-            btn.configure(image=normal_icon)
-        except:
-            pass
+    # 根据鼠标位置决定恢复为悬停图标还是正常图标
+    x, y = btn.winfo_pointerxy()
+    if btn.winfo_containing(x, y) == btn and "hover" in icons:
+        # 鼠标仍在按钮上，显示悬停图标
+        btn.configure(image=icons["hover"])
+    elif "normal" in icons:
+        # 鼠标不在按钮上，显示正常图标
+        btn.configure(image=icons["normal"])

@@ -10,6 +10,11 @@ from initialization import create_initialization_frame
 from main import create_main_frame
 from menu import create_sidebar  # 导入 create_sidebar 函数
 
+def error ( log ):
+    outlog ( log )
+    showerror(title="We are sorry.", 
+              message="Booting failed.\nYou can tell the developer.")
+    sys.exit(1)
 is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
 def outlog(log):
     if is_debug:
@@ -67,11 +72,26 @@ def check_settings_file():
             return False
     return True
 
-# 检查目录和配置文件
+def check_icon_files():
+    required_icons = [
+        "settings\\settings_normal.png",
+        "settings\\settings_hover.png",
+        "settings\\settings_click.png"
+    ]
+    
+    missing_icons = []
+    for icon in required_icons:
+        icon_path = os.path.join(image_data, icon)
+        if not os.path.exists(icon_path):
+            missing_icons.append(icon)
+    
+    return missing_icons
+
 if not check_dir(data) or not check_settings_file() or not check_dir(image_data):
-    showerror(title="We are sorry.", 
-              message="Initialization failed.\nYou can tell the developer.")
-    sys.exit(1)
+    error ( "无法创建数据文件。" )
+missing_icons = check_icon_files()
+if missing_icons:
+    error ( f"缺失一些文件: {', '.join(missing_icons)}." )
 
 # 设置主题
 ctk.set_appearance_mode("System")
@@ -105,12 +125,11 @@ def on_button_click(action):
     # 这里可以添加切换页面等逻辑
 
 def show_main():
-    # 创建主容器
     main_container = ctk.CTkFrame(win, fg_color="transparent")
     main_container.pack(fill="both", expand=True)
     
-    # 创建侧边栏 (使用函数式版本)
-    sidebar_frame = create_sidebar(main_container, dm, on_button_click)
+    # 创建侧边栏 (传递正确的 image_data 路径)
+    sidebar_frame = create_sidebar(main_container, dm, on_button_click, image_data)
     
     # 创建右侧内容区域
     content_frame = ctk.CTkFrame(
