@@ -2,17 +2,18 @@
 import customtkinter as ctk
 import os
 from PIL import Image
-import json
-
-def load_language_texts():
-    with open('language.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
+from data_manager import DataManager
 
 def create_sidebar(parent, dm, on_button_click):
     language = dm.get_config("Language", "English")
     image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
     
-    texts = load_language_texts()
+    text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
+    buttons_text_login = {"Chinese": "登录", "English": "Login"}
+    buttons_text_main = {"Chinese": "主页", "English": "Main"}
+    buttons_text_start = {"Chinese": "启动游戏", "English": "Start Game"}
+    buttons_text_translate = {"Chinese": "翻译", "English": "Translate"}
+    buttons_text_settings = {"Chinese": "设置", "English": "Settings"}
     
     sidebar = ctk.CTkFrame(
         parent,
@@ -23,7 +24,7 @@ def create_sidebar(parent, dm, on_button_click):
     
     app_title = ctk.CTkLabel(
         sidebar,
-        text=texts["title"].get(language, texts["title"]["English"]),
+        text=text_title[language],
         font=("Segoe UI", 16, "bold"),
         text_color="#1E3A8A",
     )
@@ -37,9 +38,9 @@ def create_sidebar(parent, dm, on_button_click):
     button_height = 42
     button_font = ("Segoe UI", 12)
     button_fg = "transparent"
-    button_hover = "#EFF6FF"
-    text_color = "#1E40AF"
-    selected_color = "#3B82F6"
+    button_hover = "#EFF6FF"  # 非常淡的蓝色
+    text_color = "#1E40AF"    # 蓝色
+    selected_color = "#3B82F6"  # 选中状态的蓝色
     
     # 创建按钮
     buttons = []
@@ -48,6 +49,7 @@ def create_sidebar(parent, dm, on_button_click):
     def on_settings_click():
         """设置按钮点击事件"""
         nonlocal settings_button
+        # 更改图标为点击状态
         click_icon_path = os.path.join(image_data, "settings_click.png")
         if os.path.exists(click_icon_path):
             try:
@@ -57,9 +59,13 @@ def create_sidebar(parent, dm, on_button_click):
                     size=(24, 24)
                 )
                 settings_button.configure(image=click_icon)
+                
+                # 设置定时器恢复图标
                 settings_button.after(500, lambda: restore_settings_icon(settings_button))
             except:
                 pass
+        
+        # 触发设置按钮点击回调
         on_button_click("settings")
     
     def restore_settings_icon(btn):
@@ -76,28 +82,26 @@ def create_sidebar(parent, dm, on_button_click):
             except:
                 pass
 
-    # 创建各个按钮
-    create_button(button_container, texts["login"], "character.png", "login", language, image_data, 
+    create_button(button_container, buttons_text_login, "character.png", "login", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, False, buttons)
     
-    create_button(button_container, texts["main"], "character.png", "main", language, image_data, 
+    create_button(button_container, buttons_text_main, "character.png", "main", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, True, buttons)
     
-    create_button(button_container, texts["start_game"], "weapon.png", "start", language, image_data, 
+    create_button(button_container, buttons_text_start, "weapon.png", "start", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, False, buttons)
     
-    create_button(button_container, texts["translate"], "material.png", "translate", language, image_data, 
+    create_button(button_container, buttons_text_translate, "material.png", "translate", language, image_data, 
                  button_height, button_font, button_fg, button_hover, text_color, selected_color, 
                  on_button_click, False, buttons)
     
-    settings_button = create_settings_button(button_container, texts["settings"], "settings_normal.png", 
+    settings_button = create_settings_button(button_container, buttons_text_settings, "settings_normal.png", 
                                            language, image_data, button_height, button_font, 
                                            button_fg, button_hover, text_color, on_settings_click, buttons)
     
-    # 底部版本信息
     bottom_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
     bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
     
@@ -105,12 +109,11 @@ def create_sidebar(parent, dm, on_button_click):
         bottom_frame,
         text="Furina Toolbox v1.0",
         font=("Segoe UI", 10),
-        text_color="#4B5563",
+        text_color="#4B5563",  # 灰色
     )
     version_info.pack(side="top", fill="x", pady=5)
     
     return sidebar
-
 
 def create_button(parent, text_dict, icon_name, action, language, image_data, 
                  button_height, button_font, button_fg, button_hover, 

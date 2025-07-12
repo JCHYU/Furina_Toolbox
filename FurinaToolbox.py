@@ -8,8 +8,7 @@ import ctypes
 from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
-from menu import create_sidebar
-import json
+from menu import create_sidebar  # 导入 create_sidebar 函数
 
 is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
 def outlog(log):
@@ -22,16 +21,13 @@ else:
     print("程序运行模式为 可执行程序。您将不会看到控制台中的调试日志。")
 
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
-image_data = data + "image\\"
-
+image_data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\image\\"
 dm = DataManager()
 dm.load(data)
 
-screen_width, screen_height = 0
+primary_monitor = get_monitors()[0]
+screen_width, screen_height = primary_monitor.width, primary_monitor.height
 def get_dpi():
-    primary_monitor = get_monitors()[0]
-    global screen_width, screen_height
-    screen_width, screen_height = primary_monitor.width, primary_monitor.height
     try:
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
     except:
@@ -44,10 +40,8 @@ def get_dpi():
 
 DPI_SCALING = get_dpi()
 
-# 窗口尺寸
 WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
 
-# 目录检查函数
 def check_dir(path):
     if not os.path.exists(path):
         try:
@@ -83,32 +77,13 @@ if not check_dir(data) or not check_settings_file() or not check_dir(image_data)
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
-def load_language_texts():
-    """从当前目录的language.json加载多语言文本"""
-    try:
-        with open('language.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        # 如果文件不存在或读取失败，返回默认文本
-        return {
-            "window_title": {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"},
-            "sidebar_title": {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"},
-            "login": {"Chinese": "登录", "English": "Login"},
-            "main": {"Chinese": "主页", "English": "Main"},
-            "start_game": {"Chinese": "启动游戏", "English": "Start Game"},
-            "translate": {"Chinese": "翻译", "English": "Translate"},
-            "settings": {"Chinese": "设置", "English": "Settings"},
-            "welcome": {"Chinese": "欢迎使用 Furina Toolbox", "English": "Welcome to Furina Toolbox"},
-            "description": {"Chinese": "请从左侧菜单中选择功能", "English": "Select a function from the sidebar"}
-        }
-
 # 创建主窗口
 win = ctk.CTk()
 
-# 设置窗口标题
+# 设置窗口标题多语言支持
+text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 language = dm.get_config("Language", "English")
-texts = load_language_texts()
-win.title(texts["window_title"].get(language, texts["window_title"]["English"]))
+win.title(text_title.get(language, text_title["English"]))
 
 win.configure(fg_color="#E6F2FF")
 
