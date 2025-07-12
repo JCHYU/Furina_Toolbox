@@ -10,6 +10,7 @@ BUTTON_HOVER = "#EFF6FF"
 TEXT_COLOR = "#1E40AF"
 SELECTED_COLOR = "#3B82F6"
 
+Text_Title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 Button_Login = {"Chinese": "登录", "English": "Login"}
 Button_Main = {"Chinese": "主页", "English": "Main"}
 Button_Start = {"Chinese": "启动游戏", "English": "Start Game"}
@@ -89,7 +90,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
     sidebar.pack(side="left", fill="y")
     
     # 标题
-    title_text = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}.get(language, "Furina Toolbox")
+    title_text = Text_Title.get(language, "Furina Toolbox")
     ctk.CTkLabel(
         sidebar,
         text=title_text,
