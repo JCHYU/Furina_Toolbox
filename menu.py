@@ -3,7 +3,6 @@ import os
 from PIL import Image
 from data_manager import DataManager
 
-# 按钮样式常量
 BUTTON_HEIGHT = 42
 BUTTON_FONT = ("Segoe UI", 12)
 BUTTON_FG = "transparent"
@@ -11,22 +10,20 @@ BUTTON_HOVER = "#EFF6FF"
 TEXT_COLOR = "#1E40AF"
 SELECTED_COLOR = "#3B82F6"
 
+Button_Login = {"Chinese": "登录", "English": "Login"}
+Button_Main = {"Chinese": "主页", "English": "Main"}
+Button_Start = {"Chinese": "启动游戏", "English": "Start Game"}
+Button_Translate = {"Chinese": "翻译", "English": "Translate"}
+Button_Click = {"Chinese": "连点器", "English": "Continuous Clicker"}
+Button_Settings = {"Chinese": "设置", "English": "Settings"}
+
 def create_sidebar(parent, dm, on_button_click, image_data):
-    """
-    创建侧边栏
-    :param parent: 父容器
-    :param dm: DataManager实例
-    :param on_button_click: 按钮点击回调函数
-    :param image_data: 图片目录路径
-    :return: 侧边栏框架
-    """
     language = dm.get_config("Language", "English")
     
-    # 所有按钮配置 - 每个按钮都可以定义三种状态图标
     button_configs = [
         {
             "id": "login", 
-            "text": {"Chinese": "登录", "English": "Login"}, 
+            "text": Button_Login, 
             "icons": {
                 "normal": None,
                 "hover": None,
@@ -36,7 +33,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
         },
         {
             "id": "main", 
-            "text": {"Chinese": "主页", "English": "Main"}, 
+            "text": Button_Main, 
             "icons": {
                 "normal": None,
                 "hover": None,
@@ -46,7 +43,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
         },
         {
             "id": "start", 
-            "text": {"Chinese": "启动游戏", "English": "Start Game"}, 
+            "text": Button_Start, 
             "icons": {
                 "normal": None,
                 "hover": None,
@@ -56,7 +53,17 @@ def create_sidebar(parent, dm, on_button_click, image_data):
         },
         {
             "id": "translate", 
-            "text": {"Chinese": "翻译", "English": "Translate"}, 
+            "text": Button_Translate, 
+            "icons": {
+                "normal": None,
+                "hover": None,
+                "click": None
+            },
+            "selected": False
+        },
+        {
+            "id": "Click", 
+            "text": Button_Click, 
             "icons": {
                 "normal": None,
                 "hover": None,
@@ -66,7 +73,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
         },
         {
             "id": "settings", 
-            "text": {"Chinese": "设置", "English": "Settings"}, 
+            "text": Button_Settings, 
             "icons": {
                 "normal": "settings\\settings_normal.png",
                 "hover": "settings\\settings_hover.png",
