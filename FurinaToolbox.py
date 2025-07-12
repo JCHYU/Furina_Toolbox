@@ -74,9 +74,9 @@ def check_settings_file():
 
 def check_icon_files():
     required_icons = [
-        "settings\\settings_normal.png",
-        "settings\\settings_hover.png",
-        "settings\\settings_click.png"
+        "settings/settings_normal.png",
+        "settings/settings_hover.png",
+        "settings/settings_click.png"
     ]
     
     missing_icons = []
