@@ -218,3 +218,27 @@ class DataManager:
         except Exception as e:
             self.logger.error(f"加载JSON文件失败: {file_path} - {e}")
             return default
+    def savejson(self, filename, data):
+        """
+        保存数据到JSON文件
+        
+        :param filename: JSON文件名或相对路径
+        :param data: 要保存的数据（字典或列表）
+        :return: True 如果保存成功，False 否则
+        """
+        if not self.is_loaded():
+            self.logger.warning("尝试保存JSON文件，但数据路径未加载")
+            return False
+        
+        file_path = self.file(filename)
+        
+        try:
+            # 确保目录存在
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+            return True
+        except Exception as e:
+            self.logger.error(f"保存JSON文件失败: {file_path} - {e}")
+            return False

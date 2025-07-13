@@ -10,6 +10,7 @@ from initialization import create_initialization_frame
 from main import create_main_frame
 from menu import create_sidebar
 from click import create_click_frame
+import datetime
 
 text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 
@@ -60,11 +61,14 @@ def check_dir(path):
 def check_settings_file():
     settings_path = os.path.join(data, 'settings.json')
     if not os.path.isfile(settings_path):
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         default_settings = {
             "Version": 1.0,
             "Initialization": False,
             "Language": "English",
-            "GamePath": ""
+            "GamePath": "",
+            "LastDate": current_date,  
+            "Time": 0 
         }
         try:
             dm.savejson("settings.json", default_settings)
@@ -72,6 +76,18 @@ def check_settings_file():
         except:
             return False
     return True
+settings = dm.loadjson("settings.json")
+needs_initialization = not settings.get('Initialization', False) if settings else True
+if not needs_initialization:
+    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    last_date = settings.get('LastDate', '0000-00-00')
+    time_count = settings.get('Time', 0)
+    if last_date != current_date:
+        time_count += 1
+    settings['LastDate'] = current_date
+    settings['Time'] = time_count
+    dm.savejson("settings.json", settings)
+
 
 win = ctk.CTk()
 language = dm.get_config("Language", "English")
