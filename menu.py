@@ -176,14 +176,11 @@ def create_button(parent, action, text, icons_config, selected, image_data, butt
             
         full_path = os.path.join(image_data, icon_path)
         if os.path.exists(full_path):
-            try:
-                icons[state] = ctk.CTkImage(
-                    light_image=Image.open(full_path),
-                    dark_image=Image.open(full_path),
-                    size=(24, 24)
-                )
-            except Exception as e:
-                print(f"加载 {state} 状态图标失败: {e}")
+            icons[state] = ctk.CTkImage(
+                light_image=Image.open(full_path),
+                dark_image=Image.open(full_path),
+                size=(24, 24)
+            )
     
     # 创建按钮命令
     if is_settings:

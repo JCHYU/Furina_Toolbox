@@ -8,8 +8,8 @@ import ctypes
 from data_manager import DataManager
 from initialization import create_initialization_frame
 from main import create_main_frame
-from menu import create_sidebar  # 导入 create_sidebar 函数
-from click import create_click_frame  # 导入连点器页面
+from menu import create_sidebar
+from click import create_click_frame
 
 def error ( log ):
     outlog ( log )
@@ -73,27 +73,6 @@ def check_settings_file():
             return False
     return True
 
-def check_icon_files():
-    required_icons = [
-        "settings/settings_normal.png",
-        "settings/settings_hover.png",
-        "settings/settings_click.png"
-    ]
-    
-    missing_icons = []
-    for icon in required_icons:
-        icon_path = os.path.join(image_data, icon)
-        if not os.path.exists(icon_path):
-            missing_icons.append(icon)
-    
-    return missing_icons
-
-if not check_dir(data) or not check_settings_file() or not check_dir(image_data):
-    error ( "无法创建数据文件。" )
-missing_icons = check_icon_files()
-if missing_icons:
-    error ( f"缺失一些文件: {', '.join(missing_icons)}." )
-
 # 设置主题
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -121,26 +100,15 @@ needs_initialization = not settings.get('Initialization', False) if settings els
 init_frame = None  # 添加全局变量定义
 content_frame = None  # 存储内容框架引用
 
-def on_button_click(action):
-    """处理侧边栏按钮点击事件"""
+def press_button(action):
     global content_frame
-    
-    print(f"按钮点击: {action}")
-    
     if content_frame is None:
         return
-    
-    # 隐藏当前页面
     if hasattr(content_frame, 'current_page') and content_frame.current_page in content_frame.pages:
         content_frame.pages[content_frame.current_page].pack_forget()
-    
-    # 显示新页面
     if action in content_frame.pages:
         content_frame.pages[action].pack(fill="both", expand=True)
         content_frame.current_page = action
-        print(f"已切换到 {action} 页面")
-    else:
-        print(f"找不到 {action} 页面")
 
 def show_main():
     global content_frame
@@ -149,7 +117,7 @@ def show_main():
     main_container.pack(fill="both", expand=True)
     
     # 创建侧边栏 (传递正确的 image_data 路径)
-    sidebar_frame = create_sidebar(main_container, dm, on_button_click, image_data)
+    sidebar_frame = create_sidebar(main_container, dm, press_button, image_data)
     sidebar_frame.pack(side="left", fill="y", padx=0, pady=0)
     
     # 创建右侧内容区域
