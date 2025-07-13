@@ -9,27 +9,43 @@ def create_main_frame(parent, dm):
     
     language = dm.get_config("Language", "English")
     
+    # 获取已启动天数
+    time_count = dm.get_config("Time", 0)
+    
     # 添加欢迎内容
     welcome_frame = ctk.CTkFrame(frame, fg_color="transparent")
     welcome_frame.place(relx=0.5, rely=0.4, anchor="center")
     
-    # 添加应用图标
-    app_icon = ctk.CTkLabel(
-        welcome_frame,
-        text="🎮",  # 使用emoji作为占位符
-        font=("Segoe UI", 64),
-        text_color="#3B82F6",  # 蓝色
-    )
-    app_icon.pack(side="top", pady=(0, 20))
-    
+    # 欢迎标签
     welcome_label = ctk.CTkLabel(
         welcome_frame,
-        text="欢迎使用 Furina Toolbox" if language == "Chinese" else "Welcome to Furina Toolbox",
+        text="芙宁娜已经陪伴你了" if language == "Chinese" else "Furina has been with you for",
         font=("Segoe UI", 24, "bold"),
-        text_color="#1E3A8A",  # 深蓝色
+        text_color="#6CBBE2", 
     )
     welcome_label.pack(side="top", pady=(0, 10))
     
+    # 天数显示
+    days_frame = ctk.CTkFrame(welcome_frame, fg_color="transparent")
+    days_frame.pack(side="top", pady=(0, 10))
+    
+    days_label = ctk.CTkLabel(
+        days_frame,
+        text=str(time_count),
+        font=("Segoe UI", 36, "bold"),
+        text_color="#3B82F6",  # 蓝色
+    )
+    days_label.pack(side="left", padx=5)
+    
+    days_text = ctk.CTkLabel(
+        days_frame,
+        text="天" if language == "Chinese" else "days",
+        font=("Segoe UI", 24, "bold"),
+        text_color="#1E3A8A",  # 深蓝色
+    )
+    days_text.pack(side="left", padx=5)
+    
+    # 描述文本
     description_text = "请从左侧菜单中选择功能" if language == "Chinese" else "Select a function from the sidebar"
     description_label = ctk.CTkLabel(
         welcome_frame,
