@@ -135,18 +135,6 @@ def create_sidebar(parent, dm, on_button_click, image_data):
     return sidebar
 
 def create_button(parent, action, text, icons_config, selected, image_data, button_click_handler, is_settings=False):
-    """
-    创建统一风格的按钮
-    :param parent: 父容器
-    :param action: 按钮动作标识
-    :param text: 按钮文本
-    :param icons_config: 图标配置字典，包含normal、hover、click三种状态的图标路径
-    :param selected: 是否选中
-    :param image_data: 图片目录
-    :param button_click_handler: 点击回调处理函数
-    :param is_settings: 是否为设置按钮
-    :return: 创建的按钮对象
-    """
     button_frame = ctk.CTkFrame(parent, fg_color="transparent", corner_radius=8)
     button_frame.pack(fill="x", pady=(0, 5))
     

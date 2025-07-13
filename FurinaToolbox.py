@@ -11,6 +11,8 @@ from main import create_main_frame
 from menu import create_sidebar
 from click import create_click_frame
 
+text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
+
 def error ( log ):
     outlog ( log )
     showerror(title="We are sorry.", 
@@ -20,7 +22,6 @@ is_debug = not ( getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') )
 def outlog(log):
     if is_debug:
         print("[控制台Console]" + log)
-
 if is_debug:
     print("程序运行于 Python 中。您将会看到控制台中的调试日志。")
 else:
@@ -56,7 +57,6 @@ def check_dir(path):
         except:
             return False
     return True
-
 def check_settings_file():
     settings_path = os.path.join(data, 'settings.json')
     if not os.path.isfile(settings_path):
@@ -73,32 +73,20 @@ def check_settings_file():
             return False
     return True
 
-# 设置主题
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
-
-# 创建主窗口
 win = ctk.CTk()
-
-# 设置窗口标题多语言支持
-text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 language = dm.get_config("Language", "English")
 win.title(text_title.get(language, text_title["English"]))
-
 win.configure(fg_color="#E6F2FF")
 
-# 计算居中位置
 x_pos = int((screen_width - WINDOW_WIDTH * DPI_SCALING) / 2)
 y_pos = int((screen_height - WINDOW_HEIGHT * DPI_SCALING) / 2)
 win.geometry(f"{int(WINDOW_WIDTH)}x{int(WINDOW_HEIGHT)}+{int(x_pos)}+{int(y_pos)}")
 
-# 检查是否需要初始化
 settings = dm.loadjson("settings.json")
 needs_initialization = not settings.get('Initialization', False) if settings else True
 
-# 全局变量
-init_frame = None  # 添加全局变量定义
-content_frame = None  # 存储内容框架引用
+init_frame = None
+content_frame = None
 
 def press_button(action):
     global content_frame
@@ -116,38 +104,34 @@ def show_main():
     main_container = ctk.CTkFrame(win, fg_color="transparent")
     main_container.pack(fill="both", expand=True)
     
-    # 创建侧边栏 (传递正确的 image_data 路径)
-    sidebar_frame = create_sidebar(main_container, dm, press_button, image_data)
-    sidebar_frame.pack(side="left", fill="y", padx=0, pady=0)
+    main_container.grid_columnconfigure(0, weight=10)  # 侧边栏占10%
+    main_container.grid_columnconfigure(1, weight=90)
+    main_container.grid_rowconfigure(0, weight=1)
     
-    # 创建右侧内容区域
+    sidebar_frame = create_sidebar(main_container, dm, press_button, image_data)
+    sidebar_frame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
+    
     content_frame = ctk.CTkFrame(
         main_container,
         fg_color="#FFFFFF",
         corner_radius=0,
         border_width=0
     )
-    content_frame.pack(side="right", fill="both", expand=True)
+    content_frame.grid(row=0, column=1, sticky="nsew", padx=0, pady=0)
     
-    # 创建多个页面（堆叠在一起）
     content_frame.pages = {
         "main": create_main_frame(content_frame, dm),
         "click": create_click_frame(content_frame, dm),
-        # 添加其他页面...
     }
     
-    # 设置当前页面为主页
     content_frame.current_page = "main"
     content_frame.pages["main"].pack(fill="both", expand=True)
     
-    # 存储内容框架引用
     win.content_frame = content_frame
 
-# 初始化完成回调
 def on_initialization_complete():
     show_main()
 
-# 显示界面
 if needs_initialization:
     outlog("即将进行初始化操作。About to initialize.")
     init_frame = create_initialization_frame(win, dm, on_initialization_complete)
