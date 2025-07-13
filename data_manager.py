@@ -120,11 +120,10 @@ class DataManager:
         """加载配置文件"""
         config_file = self.file("settings.json")
         
-        # 如果配置文件不存在，创建默认配置
+        # 如果配置文件不存在，不创建默认配置
         if not config_file.exists():
-            self.logger.info("配置文件不存在，创建默认配置")
-            self.config = self._get_default_config()
-            self._save_config()
+            self.logger.info("配置文件不存在")
+            self.config = {}  # 返回空配置
             return
         
         try:
@@ -133,12 +132,12 @@ class DataManager:
 
         except json.JSONDecodeError as e:
             self.logger.error(f"配置文件格式错误: {e}")
-            # 直接覆盖为默认配置
-            self.config = self._get_default_config()
-            self._save_config()
+            # 使用空配置
+            self.config = {}
         except Exception as e:
             self.logger.error(f"加载配置文件失败: {e}")
-            self.config = self._get_default_config()
+            self.config = {}
+    
     def _save_config(self):
         """保存配置文件"""
         if not self.config:
@@ -157,13 +156,8 @@ class DataManager:
             return False
     
     def _get_default_config(self):
-        """获取主程序所需的默认配置"""
-        return {
-            "Version": 1.0,
-            "Language": "English",
-            "Initialization": False,
-            "GamePath": "None"
-        }
+        """获取主程序所需的默认配置 - 返回空配置"""
+        return {}
     
     def get_config(self, key, default=None):
         """
@@ -218,6 +212,7 @@ class DataManager:
         except Exception as e:
             self.logger.error(f"加载JSON文件失败: {file_path} - {e}")
             return default
+    
     def savejson(self, filename, data):
         """
         保存数据到JSON文件
@@ -237,7 +232,16 @@ class DataManager:
             file_path.parent.mkdir(parents=True, exist_ok=True)
             
             with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=4)
+                # 使用自定义顺序序列化 JSON
+                ordered_data = {
+                    "Version": data.get("Version", 1.0),
+                    "Initialization": data.get("Initialization", False),
+                    "Language": data.get("Language", "English"),
+                    "GamePath": data.get("GamePath", ""),
+                    "LastDate": data.get("LastDate", ""),
+                    "Time": data.get("Time", 0)
+                }
+                json.dump(ordered_data, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:
             self.logger.error(f"保存JSON文件失败: {file_path} - {e}")

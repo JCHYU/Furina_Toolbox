@@ -11,6 +11,7 @@ from main import create_main_frame
 from menu import create_sidebar
 from click import create_click_frame
 import datetime
+import json
 
 text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
 
@@ -31,7 +32,7 @@ else:
 data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
 image_data = data + "image\\"
 dm = DataManager()
-dm.load(data)
+dm.load(data)  # 这会加载配置，但不会创建默认配置
 
 primary_monitor = get_monitors()[0]
 screen_width, screen_height = primary_monitor.width, primary_monitor.height
@@ -58,36 +59,102 @@ def check_dir(path):
         except:
             return False
     return True
+
 def check_settings_file():
     settings_path = os.path.join(data, 'settings.json')
-    if not os.path.isfile(settings_path):
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        default_settings = {
-            "Version": 1.0,
-            "Initialization": False,
-            "Language": "English",
-            "GamePath": "",
-            "LastDate": current_date,  
-            "Time": 0 
-        }
+
+    file_exists = os.path.isfile(settings_path)
+    file_empty = False
+    
+    if file_exists:
         try:
-            dm.savejson("settings.json", default_settings)
-            return True
+            if os.path.getsize(settings_path) == 0:
+                file_empty = True
         except:
+            file_empty = True
+    
+    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    default_settings = {
+        "Version": 1.0,
+        "Initialization": False,
+        "Language": "English",
+        "GamePath": "",
+        "LastDate": current_date,  
+        "Time": 0
+    }
+    
+    if not file_exists or file_empty:
+        try: 
+            dm.savejson("settings.json", default_settings)
+            dm.config = default_settings
+            return True
+        except Exception as e:
+            error(f"创建默认配置失败: {e}")
             return False
-    return True
-settings = dm.loadjson("settings.json")
+    
+    # 如果文件已存在且非空，确保配置包含所有必要的键
+    try:
+        # 直接从文件加载配置
+        with open(settings_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            if not content.strip():
+                # 文件内容为空，视为无效
+                raise ValueError("配置文件为空")
+            
+            settings = json.loads(content)
+        
+        # 使用默认配置补充缺失的键
+        updated = False
+        for key, default_value in default_settings.items():
+            if key not in settings:
+                outlog(f"配置缺少键: {key}")
+                settings[key] = default_value
+                updated = True
+        
+        # 如果有更新，保存回文件
+        if updated:
+            outlog("配置文件不完整，正在更新...")
+            dm.savejson("settings.json", settings)
+            dm.config = settings
+            outlog("配置文件更新完成")
+        
+        return True
+    except Exception as e:
+        outlog(f"验证配置失败: {e}")
+        # 如果验证失败，删除无效文件并重新创建
+        try:
+            os.remove(settings_path)
+            outlog("已删除无效配置文件")
+            # 重新调用函数创建新配置
+            return check_settings_file()
+        except Exception as e2:
+            outlog(f"删除配置文件失败: {e2}")
+            return False
+
+# 确保设置文件存在并包含所有必要的键
+check_settings_file()
+
+# 获取当前设置
+settings = dm.config
 needs_initialization = not settings.get('Initialization', False) if settings else True
+
+# 更新日期和天数（如果不需要初始化）
 if not needs_initialization:
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
     last_date = settings.get('LastDate', '0000-00-00')
     time_count = settings.get('Time', 0)
+    
     if last_date != current_date:
         time_count += 1
+    
+    # 更新设置
     settings['LastDate'] = current_date
     settings['Time'] = time_count
+    
+    # 保存更新后的设置
     dm.savejson("settings.json", settings)
-
+    # 更新内存中的配置
+    dm.config = settings
 
 win = ctk.CTk()
 language = dm.get_config("Language", "English")
@@ -98,7 +165,8 @@ x_pos = int((screen_width - WINDOW_WIDTH * DPI_SCALING) / 2)
 y_pos = int((screen_height - WINDOW_HEIGHT * DPI_SCALING) / 2)
 win.geometry(f"{int(WINDOW_WIDTH)}x{int(WINDOW_HEIGHT)}+{int(x_pos)}+{int(y_pos)}")
 
-settings = dm.loadjson("settings.json")
+# 再次获取设置（使用内存中的最新配置）
+settings = dm.config
 needs_initialization = not settings.get('Initialization', False) if settings else True
 
 init_frame = None
