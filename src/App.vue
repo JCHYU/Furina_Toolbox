@@ -6,7 +6,7 @@
 
 <style>
 h1 {
-	color:orange;
+	color:#6CBBE2;
 	text-align:center;
 }
 </style>
