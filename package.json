@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "http-server": "^14.1.1",
+    "react": "^19.1.0",
+    "react-scripts": "^5.0.1",
     "vue": "^3.5.17"
   },
   "devDependencies": {

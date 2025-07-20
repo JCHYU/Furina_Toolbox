@@ -12,4 +12,4 @@ Vue
 #### 加入/联系 我(们)
 微信: PCProgrammer
 QQ: 3444677312
-Mail: JCHYUDevelop@gmail.com(不推荐)
+Mail: furinakit@furinakit.top
