@@ -1,4 +1,5 @@
 # 这是 FurinaToolbox.py (主程序) 的代码
+version = 1.0
 import customtkinter as ctk
 import os
 from tkinter.messagebox import showerror
