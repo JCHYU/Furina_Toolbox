@@ -1,6 +1,8 @@
 # 这是 start.py (启动游戏) 的代码
 import customtkinter as ctk
 from tkinter.messagebox import askyesno
+from subprocess import Popen, CREATE_NEW_PROCESS_GROUP
+from sys import platform
 
 text_title = {"Chinese": "启动游戏", "English": "Start Game"}
 button_start_text = {"Chinese": "原神，启动！", "English": "Boot Up Genshin Impact!"}
@@ -12,7 +14,20 @@ def start_game () :
     if Game_Path == "":
         askyesno(title=text_gamepath_tip_title [ Language ], message=text_gamepath_tip_text [ Language ])
     else:
-        pass
+        if platform == "win32":
+            Popen(
+                [Game_Path],
+                creationflags=CREATE_NEW_PROCESS_GROUP,
+                close_fds=True
+            )
+        else:
+            Popen(
+                [Game_Path],
+                start_new_session=True,
+                close_fds=True
+            )
+        return False
+
 def create_frame(parent, language, gamepath):
     global Game_Path, Language
     Game_Path = gamepath

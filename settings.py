@@ -1,6 +1,8 @@
 # 这是 settings.py (设置) 的代码
 import customtkinter as ctk
 from tkinter.messagebox import showinfo, showwarning
+import os
+from tkinter import filedialog
 
 # 设置文本字典
 text_title = {"Chinese": "设置", "English": "Settings"}
@@ -23,6 +25,8 @@ text_ok_path_title = {"Chinese": "提示", "English": "Tip"}
 text_ok_path_text = {"Chinese": "此路径有效。", "English": "This path is valid."}
 text_none_path_title = {"Chinese": "警告", "English": "Warning"}
 text_none_path_text = {"Chinese": "游戏路径未设置", "English": "Game path not set"}
+text_no_path_title = {"Chinese": "警告", "English": "Warning"}
+text_no_path_text = {"Chinese": "此路径无效。", "Engish": "This path is invalid."}
 
 settings_list = list(button_texts.keys())
 
@@ -286,7 +290,7 @@ def create_language_page(parent, dm, language):
     )
     lang_label.pack(side="top", anchor="w", pady=(0, 10))
     
-    # 语言选择下拉框 - 修改为标题浅蓝色
+    # 语言选择下拉框 - 设置为只读
     lang_var = ctk.StringVar(value=dm.get_config("Language", "English"))
     lang_combo = ctk.CTkComboBox(
         content_frame,
@@ -301,7 +305,8 @@ def create_language_page(parent, dm, language):
         fg_color="#FFFFFF",
         text_color="#2c3e50",
         dropdown_fg_color="#FFFFFF",
-        dropdown_hover_color="#e3f2fd"
+        dropdown_hover_color="#e3f2fd",
+        state="readonly"  # 设置为只读模式
     )
     lang_combo.pack(side="top", anchor="w", pady=(0, 20))
     
@@ -312,48 +317,68 @@ def create_language_page(parent, dm, language):
         command=lambda: save_language(dm, lang_var.get()),
         width=150,
         height=40,
-        fg_color="#3B82F6",      # 修改为3B82F6蓝色
-        hover_color="#2563EB",   # 悬停时稍深的蓝色
+        fg_color="#3B82F6",
+        hover_color="#2563EB",
         font=("Segoe UI", 14, "bold")
     )
     save_button.pack(side="top", anchor="w", pady=20)
 def save_language(dm, language):
     dm.set_config("Language", language)
     showinfo ( title=text_language_finish_title [ language ], message=text_language_finish_text [ language ] )
-    
 
 def create_gamepath_page(parent, dm, language):
     # 游戏路径设置页面
     content_frame = ctk.CTkFrame(parent, fg_color="transparent")
     content_frame.pack(fill="both", expand=True, padx=20, pady=20)
     
-    # 当前路径显示
-    current_path = dm.get_config("GamePath", "")
+    # 当前路径显示 - 使用只读文本框支持自动换行
     path_text = {"Chinese": "当前游戏路径:", "English": "Current game path:"}
     path_label = ctk.CTkLabel(
         content_frame,
-        text=f"{path_text[language]} {current_path}" if current_path else f"{path_text[language]} 未设置",
+        text=path_text[language],
         font=("Segoe UI", 14),
         text_color="#4B5563",
         anchor="w"
     )
-    path_label.pack(side="top", fill="x", pady=(0, 20))
+    path_label.pack(side="top", fill="x", pady=(0, 5))
     
-    browse_text = button_browse_text [ language ]
+    # 创建只读文本框来显示路径
+    current_path = dm.get_config("GamePath", "")
+    path_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
+    path_frame.pack(side="top", fill="x", pady=(0, 20))
+    
+    # 滚动文本框
+    path_textbox = ctk.CTkTextbox(
+        path_frame,
+        height=60,  # 固定高度
+        wrap="word",  # 自动换行
+        font=("Segoe UI", 12),
+        fg_color="#F9FAFB",
+        border_color="#D1D5DB",
+        border_width=1,
+        corner_radius=4
+    )
+    path_textbox.pack(side="left", fill="x", expand=True)
+    path_textbox.insert("1.0", current_path if current_path else "未设置")
+    path_textbox.configure(state="disabled")  # 设置为只读
+    
+    # 存储文本框引用以便更新
+    path_frame.path_textbox = path_textbox
+    
+    # 直接使用字典获取文本
     browse_button = ctk.CTkButton(
         content_frame,
-        text=browse_text[language],
+        text=button_browse_text[language],
         width=120,
         height=40,
-        command=lambda: browse_game_path(dm, path_label, language),
+        command=lambda: browse_game_path(dm, path_frame, language),
         font=("Segoe UI", 14)
     )
     browse_button.pack(side="top", anchor="w", pady=10)
     
-    test_text = button_test_text [ language ]
     test_button = ctk.CTkButton(
         content_frame,
-        text=test_text[language],
+        text=button_test_text[language],
         width=120,
         height=40,
         command=lambda: test_game_path(dm, language),
@@ -361,21 +386,58 @@ def create_gamepath_page(parent, dm, language):
     )
     test_button.pack(side="top", anchor="w", pady=10)
 
-def browse_game_path(dm, path_label, language):
-    # 这里应该实现文件选择对话框
-    print("打开文件选择对话框")
-    # 假设我们选择了路径
-    new_path = "C:/Games/Genshin Impact/yuanshen.exe"
-    dm.set_config("GamePath", new_path)
+def browse_game_path(dm, path_frame, language):
+    # 文件类型筛选
+    file_types = [("游戏路径", "*.exe"), ("所有文件", "*.*")]
     
-    # 更新显示
-    path_text = {"Chinese": "当前游戏路径:", "English": "Current game path:"}
-    path_label.configure(text=f"{path_text[language]} {new_path}")
+    # 默认路径
+    default_path = r"C:\Program Files\HoYoPlay\games\Genshin Impact game"
+    initialdir = default_path if os.path.exists(default_path) else None
+    
+    # 标题文本
+    title = {
+        "Chinese": "选择游戏可执行文件",
+        "English": "Select Game Executable"
+    }
+    
+    # 打开文件选择对话框
+    selected_file = filedialog.askopenfilename(
+        title=title[language],
+        filetypes=file_types,
+        initialdir=initialdir
+    )
+    
+    if selected_file and selected_file.lower().endswith('.exe'):
+        # 规范化路径
+        normalized_path = os.path.normpath(selected_file)
+        
+        # 保存到配置
+        dm.set_config("GamePath", normalized_path)
+        
+        # 更新显示 - 使用文本框
+        path_frame.path_textbox.configure(state="normal")  # 启用编辑以更新内容
+        path_frame.path_textbox.delete("1.0", "end")  # 清空内容
+        path_frame.path_textbox.insert("1.0", normalized_path)  # 插入新路径
+        path_frame.path_textbox.configure(state="disabled")  # 恢复只读状态
+    else:
+        # 如果用户取消选择或选择了无效文件
+        warning_title = {"Chinese": "警告", "English": "Warning"}
+        warning_message = {
+            "Chinese": "未选择有效的游戏可执行文件(.exe)",
+            "English": "No valid game executable (.exe) selected"
+        }
+        showwarning(
+            title=warning_title[language],
+            message=warning_message[language]
+        )
 
 def test_game_path(dm, language):
     path = dm.get_config("GamePath", "")
     if path:
-        showinfo ( title=text_ok_path_title [ language ], message=text_ok_path_text [ language ] )
+        if os.path.exists(path):
+            showinfo( title=text_ok_path_title[language], message=text_ok_path_text[language] )
+        else:
+            showwarning( title=text_no_path_title[language], message=text_no_path_text[language] )
     else:
         showwarning ( title=text_none_path_title [ language ], message=text_none_path_text [ language ] )
         
