@@ -11,7 +11,7 @@ BUTTON_HOVER = "#EFF6FF"
 TEXT_COLOR = "#1E40AF"
 SELECTED_COLOR = "#3B82F6"
 
-Text_Title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
+Text_Title = {"Chinese": "芙宁娜工具箱", "English": "Furina Kit"}
 Button_Login = {"Chinese": "登录", "English": "Login"}
 Button_Main = {"Chinese": "主页", "English": "Main"}
 Button_Start = {"Chinese": "启动游戏", "English": "Start Game"}
@@ -19,7 +19,7 @@ Button_Translate = {"Chinese": "翻译", "English": "Translate"}
 Button_Click = {"Chinese": "连点器", "English": "Continuous Clicker"}
 Button_Settings = {"Chinese": "设置", "English": "Settings"}
 
-def create_sidebar(parent, dm, on_button_click, image_data):
+def create_frame(parent, dm, on_button_click, image_data):
     language = dm.get_config("Language", "English")
     
     button_configs = [
@@ -91,7 +91,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
     
     # 标题
-    title_text = Text_Title.get(language, "Furina Toolbox")
+    title_text = Text_Title.get(language, "Furina Kit")
     ctk.CTkLabel(
         sidebar,
         text=title_text,
@@ -127,7 +127,7 @@ def create_sidebar(parent, dm, on_button_click, image_data):
     
     ctk.CTkLabel(
         bottom_frame,
-        text="Furina Toolbox v1.0",
+        text="Furina Kit v1.0",
         font=("Segoe UI", 10),
         text_color="#4B5563"
     ).pack(side="top", fill="x", pady=5)

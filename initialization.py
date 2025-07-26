@@ -8,7 +8,7 @@ from tkinter import filedialog
 import sys
 
 # 路径配置
-data = os.path.join(os.getenv('LOCALAPPDATA'), "FurinaTB")
+data = os.path.join(os.getenv('LOCALAPPDATA'), "FurinaKit")
 dm = DataManager()
 dm.load(data)
 
@@ -69,7 +69,7 @@ def show_done_message(top_level, current_language):
     # 延迟1秒后退出
     top_level.after(1000, done)
 
-def create_initialization_frame(parent, dm, on_complete_callback):
+def create_frame(parent, dm, on_complete_callback):
     """创建初始化界面框架的函数式实现"""
     # 创建主框架
     frame = ctk.CTkFrame(parent)
@@ -113,7 +113,7 @@ def create_language_selection(language_container, path_container, progress_conta
     # 欢迎标签
     ctk.CTkLabel(
         language_container,
-        text="Welcome to Furina Toolbox!",
+        text="Welcome to Furina Kit!",
         font=("Arial", 24, "bold"),
         text_color="#1a56db"
     ).place(relx=0.5, rely=0.1, anchor="center")

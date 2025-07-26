@@ -87,13 +87,11 @@ class DataManager:
             
             return True
         except Exception as e:
-            self.logger.error(f"加载数据路径失败: {e}")
             self.data_path = None
             return False
     
     def unload(self):
         """卸载数据路径"""
-        self.logger.info(f"卸载数据路径: {self.data_path}")
         self.data_path = None
         self.config = {}
     
@@ -105,7 +103,6 @@ class DataManager:
         :return: 文件的完整路径，如果数据路径未加载则返回 None
         """
         if not self.data_path:
-            self.logger.warning("尝试访问文件，但数据路径未加载")
             return None
         
         # 创建完整文件路径
@@ -122,7 +119,6 @@ class DataManager:
         
         # 如果配置文件不存在，不创建默认配置
         if not config_file.exists():
-            self.logger.info("配置文件不存在")
             self.config = {}  # 返回空配置
             return
         
@@ -131,17 +127,14 @@ class DataManager:
                 self.config = json.load(f)
 
         except json.JSONDecodeError as e:
-            self.logger.error(f"配置文件格式错误: {e}")
             # 使用空配置
             self.config = {}
         except Exception as e:
-            self.logger.error(f"加载配置文件失败: {e}")
             self.config = {}
     
     def _save_config(self):
         """保存配置文件"""
         if not self.config:
-            self.logger.warning("没有配置可保存")
             return False
         
         config_file = self.file("settings.json")
@@ -152,7 +145,6 @@ class DataManager:
                 json.dump(self.config, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:
-            self.logger.error(f"保存配置文件失败: {e}")
             return False
     
     def _get_default_config(self):
@@ -192,14 +184,12 @@ class DataManager:
         :return: 解析后的JSON数据（字典或列表），或默认值
         """
         if not self.is_loaded():
-            self.logger.warning("尝试加载JSON文件，但数据路径未加载")
             return default
         
         file_path = self.file(filename)
         
         # 检查文件是否存在
         if not file_path.exists():
-            self.logger.info(f"JSON文件不存在: {file_path}")
             return default
         
         try:
@@ -207,10 +197,8 @@ class DataManager:
                 data = json.load(f)
             return data
         except json.JSONDecodeError as e:
-            self.logger.error(f"JSON文件格式错误: {file_path} - {e}")
             return default
         except Exception as e:
-            self.logger.error(f"加载JSON文件失败: {file_path} - {e}")
             return default
     
     def savejson(self, filename, data):
@@ -222,7 +210,6 @@ class DataManager:
         :return: True 如果保存成功，False 否则
         """
         if not self.is_loaded():
-            self.logger.warning("尝试保存JSON文件，但数据路径未加载")
             return False
         
         file_path = self.file(filename)
@@ -244,5 +231,4 @@ class DataManager:
                 json.dump(ordered_data, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:
-            self.logger.error(f"保存JSON文件失败: {file_path} - {e}")
             return False

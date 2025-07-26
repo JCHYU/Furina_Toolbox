@@ -1,4 +1,4 @@
-# 这是 FurinaToolbox.py (主程序) 的代码
+# 这是 FurinaKit.py (主程序) 的代码
 version = 1.0
 import customtkinter as ctk
 import os
@@ -6,15 +6,23 @@ from tkinter.messagebox import showerror
 from screeninfo import get_monitors
 import sys
 import ctypes
-from data_manager import DataManager
-from initialization import create_initialization_frame
-from main import create_main_frame
-from menu import create_sidebar
-from click import create_click_frame
 import datetime
 import json
+from data_manager import DataManager
+from initialization import create_frame as init_frame
+from main import create_frame as main_frame
+from menu import create_frame as menu_frame
+from click import create_frame as click_frame
+from start import create_frame as start_frame
+from settings import create_frame as settings_frame
+data = os.getenv('LOCALAPPDATA') + "\\FurinaKit\\"
+image_data = data + "image\\"
+dm = DataManager()
+dm.load(data)
 
-text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Toolbox"}
+game_path = dm.get_config("GamePath", "")
+
+text_title = {"Chinese": "芙宁娜工具箱", "English": "Furina Kit"}
 
 def error ( log ):
     outlog ( log )
@@ -29,11 +37,6 @@ if is_debug:
     print("程序运行于 Python 中。您将会看到控制台中的调试日志。")
 else:
     print("程序运行模式为 可执行程序。您将不会看到控制台中的调试日志。")
-
-data = os.getenv('LOCALAPPDATA') + "\\FurinaTB\\"
-image_data = data + "image\\"
-dm = DataManager()
-dm.load(data)  # 这会加载配置，但不会创建默认配置
 
 primary_monitor = get_monitors()[0]
 screen_width, screen_height = primary_monitor.width, primary_monitor.height
@@ -178,13 +181,16 @@ def show_main():
     main_container = ctk.CTkFrame(win, fg_color="transparent")
     main_container.pack(fill="both", expand=True)
     
-    main_container.grid_columnconfigure(0, weight=10)  # 侧边栏占10%
-    main_container.grid_columnconfigure(1, weight=90)
+    # 设置网格布局 - 左侧占1/10，右侧占9/10
+    main_container.grid_columnconfigure(0, weight=1)  # 左侧占1份
+    main_container.grid_columnconfigure(1, weight=9)  # 右侧占9份
     main_container.grid_rowconfigure(0, weight=1)
     
-    sidebar_frame = create_sidebar(main_container, dm, press_button, image_data)
+    # 创建侧边栏 - 占窗口宽度的1/10
+    sidebar_frame = menu_frame(main_container, dm, press_button, image_data)
     sidebar_frame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
     
+    # 右侧内容区 - 占窗口宽度的9/10
     content_frame = ctk.CTkFrame(
         main_container,
         fg_color="#FFFFFF",
@@ -194,8 +200,10 @@ def show_main():
     content_frame.grid(row=0, column=1, sticky="nsew", padx=0, pady=0)
     
     content_frame.pages = {
-        "main": create_main_frame(content_frame, dm),
-        "click": create_click_frame(content_frame, dm),
+        "main": main_frame(content_frame, dm),
+        "start": start_frame(content_frame, language, game_path),
+        "click": click_frame(content_frame, dm),
+        "settings": settings_frame(content_frame, dm, language)
     }
     
     content_frame.current_page = "main"
@@ -208,7 +216,7 @@ def on_initialization_complete():
 
 if needs_initialization:
     outlog("即将进行初始化操作。About to initialize.")
-    init_frame = create_initialization_frame(win, dm, on_initialization_complete)
+    init_frame = init_frame(win, dm, on_initialization_complete)
     init_frame.pack(fill="both", expand=True)
 else:
     outlog("加载主页。Load the main page.")

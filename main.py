@@ -1,8 +1,7 @@
 # 这是 main.py (主页) 的代码
 import customtkinter as ctk
-from data_manager import DataManager
 
-def create_main_frame(parent, dm):
+def create_frame(parent, dm):
     frame = ctk.CTkFrame(parent)
     frame.configure(fg_color="#FFFFFF")
     frame.pack(fill="both", expand=True)
