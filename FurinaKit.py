@@ -201,7 +201,7 @@ def show_main():
     
     content_frame.pages = {
         "main": main_frame(content_frame, dm),
-        "start": start_frame(content_frame, language, game_path),
+        "start": start_frame(content_frame, dm, language, game_path),
         "click": click_frame(content_frame, dm),
         "settings": settings_frame(content_frame, dm, language)
     }

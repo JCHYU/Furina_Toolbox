@@ -20,6 +20,9 @@ button_texts = {
 text_language_finish_title = {"Chinese": "提示", "English": "Tip"}
 text_language_finish_text = {"Chinese": "语言已修改，需要重启工具箱以生效。", "English": "The language has been modified and requires a restart of the kit to take effect."}
 button_browse_text = {"Chinese": "更改", "English": "Change"}
+window_file_title = {"Chinese": "选择游戏可执行文件","English": "Select Game Executable"}
+type_game_path_exe = {"Chinese": "游戏路径", "English": "Game Path"}
+type_game_path_all = {"Chinese": "所有文件", "English": "All File"}
 button_test_text = {"Chinese": "测试路径", "English": "Test Path"}
 text_ok_path_title = {"Chinese": "提示", "English": "Tip"}
 text_ok_path_text = {"Chinese": "此路径有效。", "English": "This path is valid."}
@@ -27,6 +30,8 @@ text_none_path_title = {"Chinese": "警告", "English": "Warning"}
 text_none_path_text = {"Chinese": "游戏路径未设置", "English": "Game path not set"}
 text_no_path_title = {"Chinese": "警告", "English": "Warning"}
 text_no_path_text = {"Chinese": "此路径无效。", "Engish": "This path is invalid."}
+
+default_path = r"C:\Program Files\HoYoPlay\games\Genshin Impact game"
 
 settings_list = list(button_texts.keys())
 
@@ -387,34 +392,19 @@ def create_gamepath_page(parent, dm, language):
     test_button.pack(side="top", anchor="w", pady=10)
 
 def browse_game_path(dm, path_frame, language):
-    # 文件类型筛选
-    file_types = [("游戏路径", "*.exe"), ("所有文件", "*.*")]
-    
-    # 默认路径
-    default_path = r"C:\Program Files\HoYoPlay\games\Genshin Impact game"
     initialdir = default_path if os.path.exists(default_path) else None
     
-    # 标题文本
-    title = {
-        "Chinese": "选择游戏可执行文件",
-        "English": "Select Game Executable"
-    }
-    
-    # 打开文件选择对话框
     selected_file = filedialog.askopenfilename(
-        title=title[language],
-        filetypes=file_types,
+        title=window_file_title[language],
+        filetypes=[(type_game_path_exe [ language ], "*.exe"), (type_game_path_all [ language ], "*.*")],
         initialdir=initialdir
     )
     
     if selected_file and selected_file.lower().endswith('.exe'):
-        # 规范化路径
         normalized_path = os.path.normpath(selected_file)
         
-        # 保存到配置
         dm.set_config("GamePath", normalized_path)
         
-        # 更新显示 - 使用文本框
         path_frame.path_textbox.configure(state="normal")  # 启用编辑以更新内容
         path_frame.path_textbox.delete("1.0", "end")  # 清空内容
         path_frame.path_textbox.insert("1.0", normalized_path)  # 插入新路径
