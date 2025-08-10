@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 
 module.exports = {
-    entry: "./src/main.js",
+    entry: "./src/index/main.js",
     module: {
         rules: [
             { test:/\.js$/, use: 'babel-loader' },
@@ -12,7 +12,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/index.html',
+            template: './src/index/index.html',
         }),
         new VueLoaderPlugin(),
     ],
