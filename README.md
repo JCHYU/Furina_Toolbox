@@ -13,3 +13,7 @@ Python
 微信: PCProgrammer
 QQ: 3444677312
 Mail: furinakit@furinakit.top
+
+!!! WARNING
+    Compliance approval PENDING due to HoYoverse unresponsiveness
+    Case ID: FK-18860116236 | Last update: 2025-07-25
