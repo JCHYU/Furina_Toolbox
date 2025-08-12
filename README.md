@@ -10,7 +10,7 @@ Python
 电脑小白 
 
 #### 加入/联系 我(们)
-微信: PCProgrammer
+WeChat: PCProgrammer
 QQ: 3444677312
 Mail: furinakit@furinakit.top
 
