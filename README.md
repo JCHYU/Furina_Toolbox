@@ -14,6 +14,8 @@ WeChat: PCProgrammer
 QQ: 3444677312
 Mail: furinakit@furinakit.top
 
+[![CC BY-NC-SA 4.0](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 !!! WARNING
     Compliance approval PENDING due to HoYoverse unresponsiveness
     Case ID: FK-18860116236 | Last update: 2025-07-25
