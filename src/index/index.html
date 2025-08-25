@@ -3,9 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>芙宁娜工具箱 - 梦想成为 Genshin Impact 最受欢迎的工具箱</title>
+  <title></title>
+  
+  <!-- 加载应用脚本 -->
+  <script type="module" src="./main.js"></script>
+  
+  <style>
+    /* 加载指示器 */
+    #app-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      z-index: 9999;
+      font-family: Arial, sans-serif;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+  </style>
 </head>
 <body>
+  <!-- 加载指示器 -->
+  <div id="app-loading">
+    <h2>应用加载中...</h2>
+  </div>
+  
+  <!-- Vue应用挂载点 -->
   <div id="app"></div>
+  
+<script>
+window.addEventListener('error', function(event) {
+  console.error('全局错误:', event.error);
+  const loading = document.getElementById('app-loading');
+  if (loading) {
+    loading.innerHTML = `
+      <div style="text-align: center;">
+        <h2 style="color: red;">应用加载失败</h2>
+        <p>${event.error.message}</p>
+        <button onclick="location.reload()">重新加载</button>
+      </div>
+    `;
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('📄 DOMContentLoaded 事件触发');
+  const app = document.getElementById('app');
+  
+  // 添加超时检测
+  setTimeout(() => {
+    const loading = document.getElementById('app-loading');
+    if (loading && loading.style.display !== 'none') {
+      console.warn('⚠️ 应用加载超时');
+      loading.innerHTML += '<p style="color: orange;">加载时间过长，请检查控制台错误</p>';
+    }
+  }, 5000); // 5秒超时
+  
+  // 监听Vue挂载事件
+  app.addEventListener('vue:mounted', () => {
+    console.log('🎉 vue:mounted 事件触发');
+    const loading = document.getElementById('app-loading');
+    if (loading) {
+      loading.style.display = 'none';
+    }
+  });
+});
+</script>
 </body>
 </html>
